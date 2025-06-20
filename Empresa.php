@@ -66,7 +66,7 @@ public function insertarEmpresa() {
     VALUES ('". $this->getIDEmpresa() ."', '". $this->getNombreEmpresa() ."', '". $this->getDireccionEmpresa() ."')";
     
     if($base->IniciarBase()) {
-        if($base->EjecutarBase($consultaEmpresa)) {
+        if($base->Ejecutar($consultaEmpresa)) {
             $resp = true;
         } else {
             $this->setMensaje($base->getERROR());
@@ -74,7 +74,6 @@ public function insertarEmpresa() {
     } else {
         $this->setMensaje($base->getERROR());
     }
-    
     return $resp;
 }
 
@@ -83,7 +82,7 @@ public function buscarEmpresa($IDEmpresa) {
     $consultaEmpresa = "SELECT * FROM Empresa WHERE IDEmpresa = " . intval($IDEmpresa);
     $resp = false;
 
-    if($base->Iniciar()) {
+    if($base->IniciarBase()) {
         if($base->Ejecutar($consultaEmpresa)) {
             if($row2 = $base->Registro()) {
                 $this->setIDEmpresa($row2['IDEmpresa']);
@@ -111,8 +110,8 @@ public function listarEmpresa($condicion = "") {
     }
     $consultaEmpresa .= " ORDER BY IDEmpresa";
 
-    if ($base->Iniciar()) {
-        if ($base->Ejecutar($consultaEmpresa)) {
+    if ($base->IniciarBase()) {
+        if ($base->IniciarBase($consultaEmpresa)) {
             $arregloEmpresas = array();
             while ($row2 = $base->Registro()) {
                 $empresa = new Empresa();
@@ -138,7 +137,7 @@ public function eliminarEmpresa() {
     $resp = false;
     $consultaEmpresa = "DELETE FROM Empresa WHERE IDEmpresa = " . $this->getIDEmpresa();
 
-    if ($base->Iniciar()) {
+    if ($base->IniciarBase()) {
         if ($base->Ejecutar($consultaEmpresa)) {
             $resp = true;
         } else {
@@ -147,10 +146,8 @@ public function eliminarEmpresa() {
     } else {
         $this->setMensaje($base->getERROR());
     }
-
     return $resp;
 }
-
 public function __toString() {
     return "ID Empresa: " . $this->getIDEmpresa() . 
            ", Nombre: " . $this->getNombreEmpresa() . 
