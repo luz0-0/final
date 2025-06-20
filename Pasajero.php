@@ -1,6 +1,7 @@
 <?php
 
 include_once 'BaseDatos.php';
+include_once 'Persona.php';
 
 class Pasajero extends Persona {
 
@@ -9,18 +10,13 @@ private $telefonoPasajero;
 private $mensaje;
 
 public function __construct(
-    $IDpasajero, 
-    $telefonoPasajero
+    $IDpasajero = 0, 
+    $telefonoPasajero = ""
     ) {
-    parent::__construct(
-        $nombrePersona = "",
-        $apellidoPersona = "",
-        $IDpasajero = 0,
-        $telefonoPasajero = "",
-        $mensaje = ""
-    );
+    parent::__construct("", "");
     $this->IDpasajero = $IDpasajero;
     $this->telefonoPasajero = $telefonoPasajero;
+    $this->mensaje = "";
 }
 
 public function getIDpasajero() {
@@ -49,9 +45,9 @@ public function getMensaje() {
 }
 
 
-public function cargarPasajero($nombre, $apellido, $IDpasajero, $telefonoPasajero) {
-    $this->setNombre($nombre);
-    $this->setApellido($apellido);
+public function cargarPasajero($nombrePersona, $apellidoPersona, $IDpasajero, $telefonoPasajero) {
+    $this->setNombrePersona($nombrePersona);
+    $this->setApellidoPersona($apellidoPersona);
     $this->setIDpasajero($IDpasajero);
     $this->setTelefonoPasajero($telefonoPasajero);
 }
@@ -67,7 +63,7 @@ public function buscarPasajero($IDpasajero){
                     $this->setIDpasajero($IDpasajero);
                     parent::setNombrePersona($row2['nombrePersona']);
                     parent::setApellidoPersona($row2['apellidoPersona']);
-                    $this->setTelefono($row2['telefonoPasajero']);
+                    $this->setTelefonoPasajero($row2['telefonoPasajero']);
                     $resp= true;
                 }
             }
@@ -83,51 +79,50 @@ public function listarPasajero($condicion = ""){
     $arregloPasajeros = null;
     $base = new BaseDatos();
     $consultaPasajero = "SELECT * FROM Pasajero";
-        if ($condicion != "") {
-            $consultaPasajero .= ' WHERE ' . $condicion;
-        }
-        $consultaPasajero .= " ORDER BY IDpasajero ";
-        if ($base->Iniciar()) {
-            if ($base->Ejecutar($consultaPasajero)) {
-                $arregloPasajeros = array();
-                while ($row2 = $base->Registro()) {
-                    $objPasajero = new Pasajero();
-                    $objPasajero->cargarPasajero(
-                        $row2['IDpasajero'], 
-                        $row2['nombrePersona'], 
-                        $row2['apellidoPersona'],
-                        $row2['telefonoPasajero']
-                    );
-                    array_push($arregloPasajeros, $objPasajero);
-                }
-            } else {
-                setMensaje("Pasajero->listar: ".$base->getError());
+    if ($condicion != "") {
+        $consultaPasajero .= ' WHERE ' . $condicion;
+    }
+    $consultaPasajero .= " ORDER BY IDpasajero ";
+    if ($base->Iniciar()) {
+        if ($base->Ejecutar($consultaPasajero)) {
+            $arregloPasajeros = array();
+            while ($row2 = $base->Registro()) {
+                $objPasajero = new Pasajero();
+                $objPasajero->cargarPasajero(
+                    $row2['nombrePersona'], 
+                    $row2['apellidoPersona'],
+                    $row2['IDpasajero'], 
+                    $row2['telefonoPasajero']
+                );
+                array_push($arregloPasajeros, $objPasajero);
             }
         } else {
-            setMensaje("Pasajero->listar: ".$base->getError());
+            $this->setMensaje("Pasajero->listar: ".$base->getError());
         }
-        return $arregloPasajeros;
+    } else {
+        $this->setMensaje("Pasajero->listar: ".$base->getError());
     }
-
+    return $arregloPasajeros;
+}
 public function insertarPasajero(){
     $base = new BaseDatos();
     $resp = false;
-    $consultaInsertar = " INSERT INTO pasajero (IDpasajero, nombrePersona, apellidoPersona, telefonoPasajero) 
-            VALUES (
-            " . $this->getIDpasajero() . ", 
-            '" . parent::getNombrePersona() . "', 
-            '" . parent::getApellidPersona() . "', 
-            '" . $this->getTelefonoPasajero() .
-            ")";
+    $consultaInsertar = "INSERT INTO Pasajero (IDpasajero, nombrePersona, apellidoPersona, telefonoPasajero) 
+    VALUES (
+    " . $this->getIDpasajero() . ", 
+    '" . parent::getNombrePersona() . "', 
+    '" . parent::getApellidoPersona() . "', 
+    '" . $this->getTelefonoPasajero() . "'
+    )";
 
         if ($base->Iniciar()) {
             if ($id = $base->Ejecutar($consultaInsertar)) {
                 $resp = true;
             } else {
-                setMensaje("Pasajero->insertar: " . $base->getError());
+            $this->setMensaje("Pasajero->insertar: " . $base->getError());
             }
         } else {
-            setMensaje("Pasajero->insertar: ".$base->getError());
+            $this->setMensaje("Pasajero->insertar: ".$base->getError());
         }
         return $resp;
     }
@@ -135,22 +130,22 @@ public function insertarPasajero(){
 public function modificarPasajero(){
     $base = new BaseDatos();
     $resp = false;
-    $consultaModificar = " UPDATE pasajero SET 
-    nombrePasajero='" . parent::getNombrePersona() .
-    "', apellidoPasajero='" . parent::getApellidoPersona() .
+    $consultaModificar = "UPDATE pasajero SET 
+    nombrePersona='" . parent::getNombrePersona() .
+    "', apellidoPersona='" . parent::getApellidoPersona() .
     "', telefonoPasajero='" . $this->getTelefonoPasajero() .
-    " WHERE IDpasajero=" . $this->getIDpasajero();
+    "' WHERE IDpasajero=" . $this->getIDpasajero();
     if ($base->Iniciar()) {
         if ($base->Ejecutar($consultaModificar)) {
             $resp = true;
         } else {
-            setMensaje("Pasajero->modificar: " . $base->getError());
+            $this->setMensaje("Pasajero->modificar: " . $base->getError());
         }
-        } else {
-            setMensaje("Pasajero->modificar: " . $base->getError());
-        }
-        return $resp;
-    }   
+    } else {
+        $this->setMensaje("Pasajero->modificar: " . $base->getError());
+    }
+    return $resp;
+}   
 
 public function eliminarPasajero(){
     $base = new BaseDatos();
