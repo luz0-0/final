@@ -119,7 +119,7 @@ $importeViaje
 
 public function buscarViaje($IDviaje) {
     $base = new BaseDatos();
-    $consulta = " SELECT * from Viaje where IDviaje = " . $IDviaje;
+    $consultaViaje = " SELECT * from Viaje where IDviaje = " . $IDviaje;
     $resp = false;
     if ($base->Iniciar()) {
         if ($base->Ejecutar($consultaViaje)) {
@@ -153,7 +153,7 @@ public function buscarViaje($IDviaje) {
 public function insertarViaje() {
     $base = new BaseDatos();
     $resp = false;
-    $consultaViaje = "INSERT INTO Viaje(destinoViaje, cantMaxPasajeros, IDempresa, IDEmpleado, importeViaje) 
+    $consultaViaje = "INSERT INTO Viaje(destinoViaje, cantMaxPasajeros, IDempresa, IDempleado, importeViaje) 
     VALUES (
     '". $this->getDestinoViaje() ."', 
     ". $this->getCantMaxPasajeros() .",
@@ -190,10 +190,10 @@ public function listarViaje($condicion = "") {
             while ($row2 = $base->Registro()) {
                 $objViaje = new Viaje();
                 $empresa = new Empresa();
-                $empresa->Buscar($row2['IDempresa']);
+                $empresa->buscarEmpresa($row2['IDempresa']);
                 
                 $responsable = new ResponsableV();
-                $responsable->Buscar($row2['IDempleado']);
+                $responsable->buscarResponsableV($row2['IDEmpleado']);
                 
                 $objViaje->cargarViaje(
                     $row2['IDviaje'], 
@@ -201,16 +201,16 @@ public function listarViaje($condicion = "") {
                     $row2['cantMaxPasajeros'], 
                     $empresa, 
                     $responsable, 
-                    [],
+                    [], 
                     $row2['importeViaje']
                 );
                 array_push($arregloViajes, $objViaje);
             }
         } else {
-            setMensaje("Viaje->listar: ".$base->getError());
+            $this->setMensaje("Viaje->listar: ".$base->getError());
         }
     } else {
-        setMensaje("Viaje->listar: ".$base->getError());
+        $this->setMensaje("Viaje->listar: ".$base->getError());
     }
     return $arregloViajes;
 }
@@ -239,7 +239,7 @@ public function modificarViaje() {
         destinoViaje = '". $this->getDestinoViaje() ."', 
         cantMaxPasajeros = ". $this->getCantMaxPasajeros() .", 
         IDempresa = ". $this->getObjEmpresa()->getIDempresa() .", 
-        IDEmpleado = ". $this->getObjResponsableV()->getIDEmpleado() .", 
+        IDempleado = ". $this->getObjResponsableV()->getIDEmpleado() .", 
         importeViaje = ". $this->getImporteViaje() ."
         WHERE IDviaje = " . $this->getIDviaje();
     
