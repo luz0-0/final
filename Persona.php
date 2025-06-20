@@ -12,8 +12,8 @@ public function __construct(
     $nombrePersona, 
     $apellidoPersona
     ) {
-    $this->nombrePersona = "";
-    $this->apellidoPersona = "";
+    $this->nombrePersona = $nombrePersona;
+    $this->apellidoPersona = $apellidoPersona;
 }
 
 public function getNombrePersona() {
@@ -60,11 +60,11 @@ public function insertarPersona(){
 
 
 
- public function __toString() {
+public function __toString() {
     return
-    "Nombre: " . $this->gePersona() . "\n" .
-    "Apellido: " . $this->getApellidoPasajero() . "\n";
-    }
+    "Nombre: " . $this->getNombrePersona() . "\n" .
+    "Apellido: " . $this->getApellidoPersona() . "\n";
+}
 
 
 
