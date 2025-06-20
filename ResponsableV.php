@@ -1,7 +1,7 @@
 <?php
 
 include_once 'BaseDatos.php';
-
+include_once 'Persona.php'; 
 
 class ResponsableV extends Persona {
 
@@ -10,16 +10,9 @@ private $IDLicencia;
 
 public function __construct(
     $IDEmpleado = 0, 
-    $IDLicencia = 0,
-    $mensaje = ""
+    $IDLicencia = 0
 ) {
-    parent::__construct(
-        $nombrePersona = "",
-        $apellidoPersona = "",
-        $IDEmpleado = 0,
-        $IDLicencia = 0,
-        $mensaje = ""
-    );
+    parent::__construct("", "");
     $this->IDEmpleado = $IDEmpleado;
     $this->IDLicencia = $IDLicencia;
 }
@@ -58,7 +51,7 @@ public function insertarResponsableV() {
     ."')";
 
     if($base->IniciarBase()) {
-        if($base->EjecutarBase($consultaResponsableV)) {
+        if($base->IniciarBase($consultaResponsableV)) {
             $resp = true;
         } else {
             $this->setMensaje($base->getERROR());
@@ -94,10 +87,10 @@ public function listarResponsableV($condicion = "") {
                 array_push($arregloResponsables, $objResponsableV);
             }
         } else {
-            setMensaje("ResponsableV->listar: ".$base->getError());
+            $this->setMensaje("ResponsableV->listar: ".$base->getError());
         }
     } else {
-        setMensaje("ResponsableV->listar: ".$base->getError());
+        $this->setMensaje("ResponsableV->listar: ".$base->getError());
     }
     return $arregloResponsables;
 }
@@ -133,7 +126,7 @@ public function eliminarResponsableV() {
     $consultaResponsableV = "DELETE FROM ResponsableV WHERE IDEmpleado = " . $this->getIDEmpleado();
 
     if ($base->IniciarBase()) {
-        if ($base->EjecutarBase($consultaResponsableV)) {
+        if ($base->IniciarBase($consultaResponsableV)) {
             $resp = true;
         } else {
             $this->setMensaje($base->getERROR());
@@ -154,7 +147,7 @@ public function modificarResponsableV() {
         WHERE IDEmpleado = " . $this->getIDEmpleado();
 
     if ($base->IniciarBase()) {
-        if ($base->EjecutarBase($consultaResponsableV)) {
+        if ($base->IniciarBase($consultaResponsableV)) {
             $resp = true;
         } else {
             $this->setMensaje($base->getERROR());
