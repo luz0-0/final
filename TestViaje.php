@@ -1,0 +1,432 @@
+<?php
+
+include_once "BaseDatos.php";
+include_once "Empresa.php";
+include_once "Persona.php";
+include_once "ResponsableV.php";
+include_once "Viaje.php";
+include_once "Pasajero.php";
+
+class TestViaje {
+
+public function Menu() {
+    do {
+        echo "Menú Principal\n";
+        echo "\n 1. Empresa \n";
+        echo " 2. Pasajero \n";
+        echo " 3. Responsable \n";
+        echo " 4. Viaje \n";
+        echo " 0. Salir\n";
+        $opcion = trim(fgets(STDIN));
+
+        switch ($opcion) {
+            case 1:
+                $this->menuEmpresa();
+                break;
+            case 2:
+                $this->menuPasajero();
+                break;
+            case 3:
+                $this->menuResponsable();
+                break;
+            case 4:
+                $this->menuViaje();
+                break;
+            default:
+                echo "Opción no válida. Intente nuevamente.\n";
+                break;
+        }
+    } while ($opcion != 0);
+
+}
+
+public function menuEmpresa() {
+        do {
+            echo "Menú empresa\n";
+            echo "\n 1. Insertar Empresa \n";
+            echo " 2. Buscar Empresa \n";
+            echo " 3. Modificar Empresa \n";
+            echo " 4. Eliminar Empresa\n";
+            echo " 5. Listar Empresas\n";
+            echo " 0. Volver\n";
+            $opcion = trim(fgets(STDIN));
+
+            switch ($opcion) {
+               case 1:
+                    echo "Insertar Empresa\n";
+                    $empresa = new Empresa();
+                    echo "Ingrese nombre de la empresa: ";
+                    $nombreEmpresa = trim(fgets(STDIN));
+                    echo "Ingrese dirección de la empresa: ";
+                    $direccionEmpresa = trim(fgets(STDIN));
+                    $empresa->cargarEmpresa(0, $nombreEmpresa, $direccionEmpresa);
+                    if ($empresa->insertarEmpresa()) {
+                        echo "Empresa insertada correctamente.\n";
+                    } else {
+                        echo "Error al insertar la empresa: " . $empresa->getMensaje() . "\n";
+                    }
+                    break;
+                case 2:
+                    echo "Buscar Empresa\n";
+                    echo "Ingrese ID de la empresa: ";
+                    $IDempresa = trim(fgets(STDIN));
+                    $empresa = new Empresa();
+                    $empresa->buscarEmpresa($IDempresa);
+                    $this->buscarEmpresa();
+                    break;
+                case 3:
+                    echo "Modificar Empresa\n";
+                    echo "Ingrese ID de la empresa a modificar: ";
+                    $IDempresa = trim(fgets(STDIN));
+                    $empresa = new Empresa();
+                    if ($empresa->buscarEmpresa($IDempresa)) {
+                        echo "Ingrese nuevo nombre de la empresa: ";
+                        $nombreEmpresa = trim(fgets(STDIN));
+                        echo "Ingrese nueva dirección de la empresa: ";
+                        $direccionEmpresa = trim(fgets(STDIN));
+                        $empresa->cargarEmpresa($IDempresa, $nombreEmpresa, $direccionEmpresa);
+                        if ($empresa->modificarEmpresa()) {
+                            echo "\n Empresa modificada.\n";
+                        } else {
+                            echo "\n Error al modificar: " . $empresa->getMensaje() . "\n";
+                        }
+                    } else {
+                        echo "\n Empresa no encontrada.\n";
+                    }
+                    break;
+                case 4:
+                    echo "\n Eliminar Empresa\n";
+                    echo "Ingrese ID de la empresa a eliminar: ";
+                    $IDempresa = trim(fgets(STDIN));
+                    $empresa = new Empresa();
+                    if ($empresa->buscarEmpresa($IDempresa)) {
+                        if ($empresa->eliminarEmpresa()) {
+                            echo "\n Empresa eliminada.\n";
+                        } else {
+                            echo "\n Error al eliminar: " . $empresa->getMensaje() . "\n";
+                        }
+                    } else {
+                        echo "\n Empresa no encontrada.\n";
+                    }
+                    break;
+                case 5:
+                    echo "\n Listar Empresas\n";
+                    $empresa = new Empresa();
+                    $empresas = $empresa->listarEmpresas();
+                    break;
+                default:
+                    echo "\n Opción no válida. \n";
+                    break;
+            }
+        } while ($opcion != 0);
+    }
+
+public function menuPasajero() {
+    do {
+        echo "Menú Pasajero\n";
+        echo "\n 1. Insertar Pasajero \n";
+        echo "\n 2. Buscar Pasajero \n";
+        echo "\n 3. Modificar Pasajero \n";
+        echo "\n 4. Eliminar Pasajero\n";
+        echo "\n 5. Listar Pasajeros\n";
+        $opcion = trim(fgets(STDIN));
+    
+    switch ($opcion) {
+        case 1:
+            echo "Insertar Pasajero\n";
+            $pasajero = new Pasajero();
+            echo "Ingrese nombre del pasajero: ";
+            $nombrePersona = trim(fgets(STDIN));
+            echo "Ingrese apellido del pasajero: ";
+            $apellidoPersona = trim(fgets(STDIN));
+            echo "Ingrese ID del pasajero: ";
+            $IDpasajero = trim(fgets(STDIN));
+            echo "Ingrese teléfono del pasajero: ";
+            $telefonoPasajero = trim(fgets(STDIN));
+            $pasajero->cargarPasajero($nombrePersona, $apellidoPersona, $IDpasajero, $telefonoPasajero);
+            if ($pasajero->insertarPasajero()) {
+                echo "Pasajero insertado correctamente.\n";
+            } else {
+                echo "Error al insertar el pasajero: " . $pasajero->getMensaje() . "\n";
+            }
+            break;
+        case 2:
+            echo "Buscar Pasajero\n";
+            echo "Ingrese ID del pasajero: ";
+            $IDPasajero = trim(fgets(STDIN));
+            $pasajero = new Pasajero();
+            if ($pasajero->buscarPasajero($IDPasajero)) {
+                echo "Pasajero encontrado: " . $pasajero->getNombrePersona() . " " . $pasajero->getApellidoPersona() . "\n";
+            } else {
+                echo "Pasajero no encontrado.\n";
+            }
+            break;
+        case 3:
+            echo "Modificar Pasajero\n";
+            echo "Ingrese ID del pasajero a modificar: ";
+            $IDPasajero = trim(fgets(STDIN));
+            $pasajero = new Pasajero();
+            if ($pasajero->buscarPasajero($IDPasajero)) {
+                echo "Ingrese nuevo nombre del pasajero: ";
+                $nombrePersona = trim(fgets(STDIN));
+                echo "Ingrese nuevo apellido del pasajero: ";
+                $apellidoPersona = trim(fgets(STDIN));
+                echo "Ingrese nuevo número de documento: ";
+                $numeroDocumento = trim(fgets(STDIN));
+                $pasajero->cargarPasajero($IDPasajero, $nombrePersona, $apellidoPersona, $IDpasajero);
+                if ($pasajero->modificarPasajero()) {
+                    echo "\n Pasajero modificado.\n";
+                } else {
+                    echo "\n Error al modificar: " . $pasajero->getMensaje() . "\n";
+                }
+            }
+            break;
+        case 4:
+            echo "\n Eliminar Pasajero\n";
+            echo "Ingrese ID del pasajero a eliminar: ";
+            $IDPasajero = trim(fgets(STDIN));
+            $pasajero = new Pasajero();
+            if ($pasajero->buscarPasajero($IDPasajero)) {
+                if ($pasajero->eliminarPasajero()) {
+                    echo "\n Pasajero eliminado.\n";
+                } else {
+                    echo "\n Error al eliminar: " . $pasajero->getMensaje() . "\n";
+                }
+            } else {
+                echo "\n Pasajero no encontrado.\n";
+            }
+            break;
+    case 5:
+            echo "\n Listar Pasajeros\n";
+            $pasajero = new Pasajero();
+            $pasajeros = $pasajero->listarPasajeros();
+            if (count($pasajeros) > 0) {
+                foreach ($pasajeros as $p) {
+                    echo "ID: " . $p->getIDpasajero() . ", Nombre: " . $p->getNombrePersona() . " " . $p->getApellidoPersona() . "\n";
+                }
+            } else {
+                echo "No hay pasajeros registrados.\n";
+            }
+            break;
+        default:
+            echo "\n Opción no válida. \n";
+            break;
+        }
+            
+    
+
+
+
+
+
+    } while ($opcion != 0);
+}
+
+
+
+
+
+public function menuResponsable() {
+    do {
+        echo "Menú Responsable\n";
+        echo "\n 1. Insertar Responsable \n";
+        echo " 2. Buscar Responsable \n";
+        echo " 3. Modificar Responsable \n";
+        echo " 4. Eliminar Responsable\n";
+        echo " 5. Listar Responsables\n";
+        $opcion = trim(fgets(STDIN));
+
+    switch ($opcion) {
+        case 1:
+            echo "Insertar Responsable\n";
+            $responsable = new ResponsableV();
+            echo "Ingrese nombre del responsable: ";
+            $nombrePersona = trim(fgets(STDIN));
+            echo "Ingrese apellido del responsable: ";
+            $apellidoPersona = trim(fgets(STDIN));
+            echo "Ingrese número de licencia: ";
+            $IDLicencia = trim(fgets(STDIN));
+            $responsable->cargarResponsableV(0, $nombrePersona, $apellidoPersona, 0, $IDLicencia);
+            if ($responsable->insertarResponsableV()) {
+                echo "Responsable insertado correctamente.\n";
+            } else {
+                echo "Error al insertar el responsable: " . $responsable->getMensaje() . "\n";
+            }
+            break;
+        case 2:
+            echo "Buscar Responsable\n";
+            echo "Ingrese ID del responsable: ";
+            $IDLicencia = trim(fgets(STDIN));
+            $responsable = new ResponsableV();
+            if ($responsable->buscarResponsableV($IDLicencia)) {
+                echo "Responsable encontrado: " . $responsable->getNombrePersona() . " " . $responsable->getApellidoPersona() . "\n";
+            } else {
+                echo "Responsable no encontrado.\n";
+            }
+            break;
+        case 3:
+            echo "Modificar Responsable\n";
+            echo "Ingrese ID del responsable a modificar: ";
+            $IDLicencia = trim(fgets(STDIN));
+            $responsable = new ResponsableV();
+            if ($responsable->buscarResponsableV($IDLicencia)) {
+                echo "Ingrese nuevo nombre del responsable: ";
+                $nombrePersona = trim(fgets(STDIN));
+                echo "Ingrese nuevo apellido del responsable: ";
+                $apellidoPersona = trim(fgets(STDIN));
+                $responsable->cargarResponsableV($nombrePersona, $apellidoPersona, 0, $IDLicencia);
+                if ($responsable->modificarResponsableV()) {
+                    echo "\n Responsable modificado.\n";
+                } else {
+                    echo "\n Error al modificar: " . $responsable->getMensaje() . "\n";
+                }
+            } else {
+                echo "\n Responsable no encontrado.\n";
+            }
+            break;
+        case 4:
+            echo "\n Eliminar Responsable\n";
+            echo "Ingrese ID del responsable a eliminar: ";
+            $IDLicencia = trim(fgets(STDIN));
+            $responsable = new ResponsableV();
+            if ($responsable->buscarResponsableV($IDLicencia)) {
+                if ($responsable->eliminarResponsableV()) {
+                    echo "\n Responsable eliminado.\n";
+                } else {
+                    echo "\n Error al eliminar: " . $responsable->getMensaje() . "\n";
+                }
+            } else {
+                echo "\n Responsable no encontrado.\n";
+            }
+            break;
+        case 5:
+            echo "\n Listar Responsables\n";
+            $responsable = new ResponsableV();
+            $responsables = $responsable->listarResponsables();
+            if (count($responsables) > 0) {
+                foreach ($responsables as $resp) {
+                    echo "ID: " . $resp->getIDEmpleado() . ", Nombre: " . $resp->getNombrePersona() . " " . $resp->getApellidoPersona() . "\n";
+                }
+            } else {
+                echo "No hay responsables registrados.\n";
+            }
+            break;
+        default:
+            echo "\n Opción no válida. \n";
+            break;
+}
+    } while ($opcion != 0);
+}
+
+
+public function menuViaje() {
+    do {
+        echo "Menú Viaje\n";
+        echo "\n 1. Insertar Viaje \n";
+        echo " 2. Buscar Viaje \n";
+        echo " 3. Modificar Viaje \n";
+        echo " 4. Eliminar Viaje\n";
+        echo " 5. Listar Viajes\n";
+        $opcion = trim(fgets(STDIN));
+
+        switch ($opcion) {
+            case 1:
+                echo "Insertar Viaje\n";
+                $viaje = new Viaje();
+                echo "Ingrese destino del viaje: ";
+                $destinoViaje = trim(fgets(STDIN));
+                echo "Ingrese cantidad máxima de pasajeros: ";
+                $cantMaxPasajeros = trim(fgets(STDIN));
+                echo "Ingrese ID de la empresa: ";
+                $IDempresa = trim(fgets(STDIN));
+                echo "Ingrese ID del responsable: ";
+                $IDempleado = trim(fgets(STDIN));
+                echo "Ingrese importe del viaje: ";
+                $importeViaje = trim(fgets(STDIN));
+                $empresa = new Empresa();
+                $responsable = new ResponsableV();
+                if ($empresa->buscarEmpresa($IDempresa) && $responsable->buscarResponsableV($IDempleado)) {
+                    $viaje->cargarViaje(0, $destinoViaje, $cantMaxPasajeros, $empresa, $responsable, [], $importeViaje);
+                    if ($viaje->insertarViaje()) {
+                        echo "Viaje insertado correctamente.\n";
+                    } else {
+                        echo "Error al insertar el viaje: " . $viaje->getMensaje() . "\n";
+                    }
+                } else {
+                    echo "Empresa o responsable no encontrados.\n";
+                }
+                break;
+            case 2:
+                echo "Buscar Viaje\n";
+                echo "Ingrese ID del viaje: ";
+                $IDviaje = trim(fgets(STDIN));
+                $viaje = new Viaje();
+                if ($viaje->buscarViaje($IDviaje)) {
+                    echo "Viaje encontrado: " . $viaje->getDestinoViaje() . "\n";
+                } else {
+                    echo "Viaje no encontrado.\n";
+                }
+                break;
+            case 3:
+                echo "Modificar Viaje\n";
+                echo "Ingrese ID del viaje a modificar: ";
+                $IDviaje = trim(fgets(STDIN));
+                $viaje = new Viaje();
+                if ($viaje->buscarViaje($IDviaje)) {
+                    echo "Ingrese nuevo destino del viaje: ";
+                    $destinoViaje = trim(fgets(STDIN));
+                    echo "Ingrese nueva cantidad máxima de pasajeros: ";
+                    $cantMaxPasajeros = trim(fgets(STDIN));
+                    echo "Ingrese nuevo ID de la empresa: ";
+                    $IDempresa = trim(fgets(STDIN));
+                    echo "Ingrese nuevo ID del responsable: ";
+                    $IDempleado = trim(fgets(STDIN));
+                    echo "Ingrese nuevo importe del viaje: ";
+                    $importeViaje = trim(fgets(STDIN));
+                    $viaje->cargarViaje($IDviaje, $destinoViaje, $cantMaxPasajeros, $IDempresa, $IDempleado, $importeViaje);
+                    if ($viaje->modificarViaje()) {
+                        echo "\n Viaje modificado.\n";
+                    } else {
+                        echo "\n Error al modificar: " . $viaje->getMensaje() . "\n";
+                    }
+                } else {
+                    echo "\n Viaje no encontrado.\n";
+                }
+                break;
+            case 4:
+                echo "\n Eliminar Viaje\n";
+                echo "Ingrese ID del viaje a eliminar: ";
+                $IDviaje = trim(fgets(STDIN));
+                $viaje = new Viaje();
+                if ($viaje->buscarViaje($IDviaje)) {
+                    if ($viaje->eliminarViaje()) {
+                        echo "\n Viaje eliminado.\n";
+                    } else {
+                        echo "\n Error al eliminar: " . $viaje->getMensaje() . "\n";
+                    }
+                } else {
+                    echo "\n Viaje no encontrado.\n";
+                }
+                break;
+            case 5:
+                echo "\n Listar Viajes\n";
+                $viaje = new Viaje();
+                $viajes = $viaje->listarViajes();
+                if (count($viajes) > 0) {
+                    foreach ($viajes as $v) {
+                        echo "ID: " . $v->getIDviaje() . ", Destino: " . $v->getDestinoViaje() . ", Importe: " . $v->getImporteViaje() . "\n";
+                    }
+                } else {
+                    echo "No hay viajes registrados.\n";
+                }
+                break;
+            default:
+                echo "\n Opción no válida. \n";
+                break;
+        }
+
+    } while ($opcion != 0);
+}
+
+}
+
