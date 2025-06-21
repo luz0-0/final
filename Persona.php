@@ -12,7 +12,7 @@ class Persona {
     public function __construct(
         $nombrePersona = "", 
         $apellidoPersona = "",
-        $IDpersona = 0
+        $IDpersona = ""
     ) {
         $this->nombrePersona = $nombrePersona;
         $this->apellidoPersona = $apellidoPersona;
