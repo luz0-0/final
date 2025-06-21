@@ -158,7 +158,7 @@ class Viaje {
                 '" . $this->getDestinoViaje() . "', 
                 " . $this->getCantMaxPasajeros() . ",
                 " . $this->getObjEmpresa()->getIDempresa() . ",
-                " . $this->getObjResponsableV()->getIDEmpleado() . ",
+                " . $this->getObjResponsableV()->getIDempleado() . ",
                 " . $this->getImporteViaje() . "
             )";
         if ($base->IniciarBase()) {
@@ -235,7 +235,7 @@ class Viaje {
             destinoViaje = '" . $this->getDestinoViaje() . "', 
             cantMaxPasajeros = " . $this->getCantMaxPasajeros() . ", 
             IDempresa = " . $this->getObjEmpresa()->getIDempresa() . ", 
-            IDempleado = " . $this->getObjResponsableV()->getIDEmpleado() . ", 
+            IDempleado = " . $this->getObjResponsableV()->getIDempleado() . ", 
             importeViaje = " . $this->getImporteViaje() . "
             WHERE IDviaje = " . intval($this->getIDviaje());
         if ($base->IniciarBase()) {
