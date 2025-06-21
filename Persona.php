@@ -4,70 +4,81 @@ include_once 'BaseDatos.php';
 
 class Persona {
 
-private $nombrePersona;
-private $apellidoPersona;
+    private $nombrePersona;
+    private $apellidoPersona;
+    private $IDpersona;
+    private $mensaje;
 
-
-public function __construct(
-    $nombrePersona, 
-    $apellidoPersona
+    public function __construct(
+        $nombrePersona = "", 
+        $apellidoPersona = "",
+        $IDpersona = 0
     ) {
-    $this->nombrePersona = $nombrePersona;
-    $this->apellidoPersona = $apellidoPersona;
-}
+        $this->nombrePersona = $nombrePersona;
+        $this->apellidoPersona = $apellidoPersona;
+        $this->IDpersona = $IDpersona;
+        $this->mensaje = "";
+    }
 
-public function getNombrePersona() {
-    return $this->nombrePersona;
-}
+    public function getNombrePersona() {
+        return $this->nombrePersona;
+    }
 
-public function setNombrePersona($nombrePersona) {
-    $this->nombrePersona = $nombrePersona;
-}
+    public function setNombrePersona($nombrePersona) {
+        $this->nombrePersona = $nombrePersona;
+    }
 
-public function getApellidoPersona() {
-    return $this->apellidoPersona;
-}
+    public function getApellidoPersona() {
+        return $this->apellidoPersona;
+    }
 
-public function setApellidoPersona($apellidoPersona) {
-    $this->apellidoPersona = $apellidoPersona;
-}
+    public function setApellidoPersona($apellidoPersona) {
+        $this->apellidoPersona = $apellidoPersona;
+    }
 
-public function cargarPersona($nombrePersona, $apellidoPersona) {
-    $this->setNombrePersona($nombrePersona);
-    $this->setApellidoPersona($apellidoPersona);
-}
+    public function getIDpersona() {
+        return $this->IDpersona;
+    }
 
-public function insertarPersona(){
-		$base = new BaseDatos();
-		$resp = false;
-		$consultaPersona = "INSERT INTO Persona(nombrePersona, apellidoPersona) 
-		VALUES ('". $this->getNombrePersona() ."', '". $this->getApellidoPersona() ."')";
-		if($base->IniciarBase()){
-			if($base->EjecutarBase($consultaPersona)){
-				$resp = true;
-			}   else {
+    public function setIDpersona($IDpersona) {
+        $this->IDpersona = $IDpersona;
+    }
+
+    public function cargarPersona($nombrePersona, $apellidoPersona, $IDpersona) {
+        $this->setNombrePersona($nombrePersona);
+        $this->setApellidoPersona($apellidoPersona);
+        $this->setIDpersona($IDpersona);
+    }
+
+    public function insertarPersona() {
+        $base = new BaseDatos();
+        $resp = false;
+        $consultaPersona = "INSERT INTO Persona(nombrePersona, apellidoPersona, IDpersona) 
+            VALUES ('" . $this->getNombrePersona() . "', '" . $this->getApellidoPersona() . "', '" . $this->getIDpersona() . "')";
+        if ($base->IniciarBase()) {
+            if ($base->EjecutarBase($consultaPersona)) {
+                $resp = true;
+            } else {
                 $this->setMensaje($base->getERROR());
             }
-        }    else {
+        } else {
             $this->setMensaje($base->getERROR());
         }
-		return $resp;
-	}
+        return $resp;
+    }
 
-    
+    public function setMensaje($mensaje) {
+        $this->mensaje = $mensaje;
+    }
 
+    public function getMensaje() {
+        return $this->mensaje;
+    }
 
-
-
-
-public function __toString() {
-    return
-    "Nombre: " . $this->getNombrePersona() . "\n" .
-    "Apellido: " . $this->getApellidoPersona() . "\n";
-}
-
-
-
-
+    public function __toString() {
+        return
+            "Nombre: " . $this->getNombrePersona() . "\n" .
+            "Apellido: " . $this->getApellidoPersona() . "\n";
+    }
 
 }
