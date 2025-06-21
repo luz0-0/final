@@ -100,6 +100,25 @@ public function buscarEmpresa($IDempresa) {
     return $resp;
 }
 
+public function modificarEmpresa() {
+    $base = new BaseDatos();
+    $resp = false;
+    $consultaEmpresa = "UPDATE Empresa SET 
+        nombreEmpresa = '" . $this->getNombreEmpresa() . "', 
+        direccionEmpresa = '" . $this->getDireccionEmpresa() . "' 
+        WHERE IDempresa = " . intval($this->getIDEmpresa());
+    if ($base->IniciarBase()) {
+        if ($base->EjecutarBase($consultaEmpresa)) {
+            $resp = true;
+        } else {
+            $this->setMensaje($base->getERROR());
+        }
+    } else {
+        $this->setMensaje($base->getERROR());
+    }
+    return $resp;
+}
+
 public function listarEmpresa($condicion = "") {
     $arregloEmpresas = null;
     $base = new BaseDatos();
