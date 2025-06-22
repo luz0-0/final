@@ -32,6 +32,9 @@ public function Menu() {
             case 4:
                 $this->menuViaje();
                 break;
+            case 0: 
+                echo "Saliendo del programa...\n";
+                break;
             default:
                 echo "Opción no válida. Intente nuevamente.\n";
                 break;
@@ -83,6 +86,7 @@ public function menuEmpresa() {
                     $IDempresa = trim(fgets(STDIN));
                     $empresa = new Empresa();
                     if ($empresa->buscarEmpresa($IDempresa)) {
+                        echo "\n Empresa encontrada: " . $empresa . "\n";
                         echo "\n Ingrese nuevo nombre de la empresa: ";
                         $nombreEmpresa = trim(fgets(STDIN));
                         echo "\n Ingrese nueva dirección de la empresa: ";
@@ -180,6 +184,7 @@ public function menuPasajero() {
             $IDpasajero = trim(fgets(STDIN));
             $pasajero = new Pasajero();
             if ($pasajero->buscarPasajero($IDpasajero)) {
+                echo "\n Pasajero encontrado: " . $pasajero->getNombrePersona() . " " . $pasajero->getApellidoPersona() . "\n";
                 echo "\n Ingrese nuevo nombre del pasajero: \n";
                 $nombrePersona = trim(fgets(STDIN));
                 echo "\nIngrese nuevo apellido del pasajero: \n";
@@ -285,6 +290,7 @@ public function menuResponsable() {
             $IDlicencia = trim(fgets(STDIN));
             $responsable = new ResponsableV();
             if ($responsable->buscarResponsableV($IDlicencia)) {
+                echo "\n Responsable encontrado: " . $responsable->getNombrePersona() . " " . $responsable->getApellidoPersona() . "\n";
                 echo "\n Ingrese nuevo nombre del responsable: ";
                 $nombrePersona = trim(fgets(STDIN));
                 echo "\n Ingrese nuevo apellido del responsable: ";
@@ -390,6 +396,7 @@ public function menuViaje() {
                 $IDviaje = trim(fgets(STDIN));
                 $viaje = new Viaje();
                 if ($viaje->buscarViaje($IDviaje)) {
+                    echo "Viaje encontrado: " . $viaje->getDestinoViaje() . "\n";
                     echo "Ingrese nuevo destino del viaje: ";
                     $destinoViaje = trim(fgets(STDIN));
                     echo "Ingrese nueva cantidad máxima de pasajeros: ";
