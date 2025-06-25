@@ -1,0 +1,119 @@
+<?php
+
+include_once 'BaseDatos.php';
+
+class ViajePasajeros {
+    private $IDviaje;
+    private $IDpasajero;
+    private $mensaje;
+
+    public function __construct(
+        $IDviaje = 0,
+        $IDpasajero = 0
+        ) {
+        $this->IDviaje = $IDviaje;
+        $this->IDpasajero = $IDpasajero;
+        $this->mensaje = "";
+    }
+
+
+    public function getIDviaje() {
+        return $this->IDviaje;
+    }
+
+    public function setIDviaje($IDviaje) {
+        $this->IDviaje = $IDviaje;
+    }
+
+    public function getIDPasajero() {
+        return $this->IDpasajero;
+    }
+
+    public function setIDPasajero($IDpasajero) {
+        $this->IDpasajero = $IDpasajero;
+    }
+
+    public function getMensaje() {
+        return $this->mensaje;
+    }
+
+    public function setMensaje($mensaje) {
+        $this->mensaje = $mensaje;
+    }
+
+
+    public function cargarViajePasajero($IDviaje, $IDpasajero) {
+        $this->IDviaje = $IDviaje;
+        $this->IDpasajero = $IDpasajero;
+    }
+
+    public function insertar() {
+        $base = new BaseDatos();
+        $resp = false;
+        $consulta = "INSERT INTO ViajePasajeros(IDviaje, docPasajero) 
+            VALUES (" . intval($this->getIDviaje()) . ", " . intval($this->getIDPasajero()) . ")";
+        
+        if ($base->IniciarBase()) {
+            if ($base->EjecutarBase($consulta)) {
+                $resp = true;
+            } else {
+                $this->mensaje = "Error al insertar el viaje pasajero: " . $base->getERROR();
+            }
+        } else {
+            $this->mensaje = "Error al iniciar la base de datos: " . $base->getERROR();
+        }
+        
+        return $resp;
+    }
+
+    public function eliminar() {
+        $base = new BaseDatos();
+        $resp = false;
+        $consulta = "DELETE FROM ViajePasajeros WHERE IDviaje=" . intval($this->getIDviaje()) . " AND docPasajero=" . intval($this->getIDPasajero());
+        
+        if ($base->IniciarBase()) {
+            if ($base->EjecutarBase($consulta)) {
+                $resp = true;
+            } else {
+                $this->mensaje = "Error al eliminar el viaje: " . $base->getERROR();
+            }
+        } else {
+            $this->mensaje = "Error al iniciar la base de datos: " . $base->getERROR();
+        }
+        
+        return $resp;
+    }
+
+    public function listar($condicion = "") {
+        $arregloViajePasajeros = null;
+        $base = new BaseDatos();
+        $consulta = "SELECT * FROM ViajePasajeros";
+        if ($condicion != "") {
+            $consulta .= ' WHERE ' . $condicion;
+        }
+        $consulta .= " ORDER BY IDviaje, docPasajero";
+        
+        if ($base->IniciarBase()) {
+            if ($base->EjecutarBase($consulta)) {
+                $arregloViajePasajeros = array();
+                while ($row = $base->Registro()) {
+                    $objViajePasajero = new ViajePasajeros();
+                    $objViajePasajero->cargarViajePasajero($row['IDviaje'], $row['docPasajero']);
+                    array_push($arregloViajePasajeros, $objViajePasajero);
+                }
+            } else {
+                $this->mensaje = "Error al listar: " . $base->getERROR();
+            }
+        } else {
+            $this->mensaje = "Error al iniciar la base de datos: " . $base->getERROR();
+        }
+        
+        return $arregloViajePasajeros;
+    }
+
+    public function __toString() {
+        return "ID Viaje: " . $this->getIDviaje() . "\n" .
+               "ID Pasajero: " . $this->getIDPasajero() . "\n" .
+               "Mensaje: " . $this->getMensaje() . "\n";
+    }
+}
