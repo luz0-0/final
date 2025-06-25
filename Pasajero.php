@@ -1,30 +1,29 @@
 <?php
-
 include_once 'BaseDatos.php';
 include_once 'Persona.php';
 
 class Pasajero extends Persona {
 
-    private $IDpasajero;
+    private $docPasajero;
     private $telefonoPasajero;
     private $mensaje;
 
     public function __construct(
-        $IDpasajero = "", 
+        $docPasajero = 0, 
         $telefonoPasajero = ""
     ) {
-        parent::__construct("", "", "");
-        $this->IDpasajero = $IDpasajero;
+        parent::__construct("", "", 0);
+        $this->docPasajero = $docPasajero;
         $this->telefonoPasajero = $telefonoPasajero;
         $this->mensaje = "";
     }
 
-    public function getIDpasajero() {
-        return $this->IDpasajero;
+    public function getdocPasajero() {
+        return $this->docPasajero;
     }
 
-    public function setIDpasajero($IDpasajero) {
-        $this->IDpasajero = $IDpasajero;
+    public function setdocPasajero($docPasajero) {
+        $this->docPasajero = $docPasajero;
     } 
 
     public function getTelefonoPasajero() {
@@ -43,27 +42,33 @@ class Pasajero extends Persona {
         return $this->mensaje;
     }
 
-    public function cargarPasajero($nombrePersona, $apellidoPersona, $IDpasajero, $telefonoPasajero) {
+    public function cargarPasajero($nombrePersona, $apellidoPersona, $docPasajero, $telefonoPasajero) {
         $this->setNombrePersona($nombrePersona);
         $this->setApellidoPersona($apellidoPersona);
-        $this->setIDpasajero($IDpasajero);
+        $this->setdocPasajero($docPasajero);
         $this->setTelefonoPasajero($telefonoPasajero);
     }
 
-    public function buscarPasajero($IDpasajero){
+    public function buscarPasajero($docPasajero){
         $base = new BaseDatos();
-        $consultaPasajero = "SELECT * FROM Pasajero WHERE IDpasajero = '" . $IDpasajero . "'";
+        $consultaPasajero = "SELECT p.*, per.nombrePersona, per.apellidoPersona, per.IDpersona 
+                            FROM Pasajero p 
+                            INNER JOIN Persona per ON p.IDpersona = per.IDpersona 
+                            WHERE p.docPasajero = " . intval($docPasajero);
         $resp = false;
 
         if ($base->IniciarBase()) {
             if ($base->EjecutarBase($consultaPasajero)) {
                 if ($row2 = $base->Registro()) {					
-                    $this->setIDpasajero($IDpasajero);
-                    parent::setNombrePersona($row2['nombrePersona']);
-                    parent::setApellidoPersona($row2['apellidoPersona']);
+                    $this->setdocPasajero($row2['docPasajero']);
+                    $this->setIDpersona($row2['IDpersona']);
+                    $this->setNombrePersona($row2['nombrePersona']);
+                    $this->setApellidoPersona($row2['apellidoPersona']);
                     $this->setTelefonoPasajero($row2['telefonoPasajero']);
                     $resp = true;
                 }
+            } else {
+                $this->setMensaje($base->getERROR());
             }
         } else {
             $this->setMensaje($base->getERROR());
@@ -74,20 +79,24 @@ class Pasajero extends Persona {
     public function listarPasajero($condicion = "") {
         $arregloPasajeros = null;
         $base = new BaseDatos();
-        $consultaPasajero = "SELECT * FROM Pasajero";
+        $consultaPasajero = "SELECT p.*, per.nombrePersona, per.apellidoPersona, per.IDpersona 
+                            FROM Pasajero p 
+                            INNER JOIN Persona per ON p.IDpersona = per.IDpersona";
         if ($condicion != "") {
             $consultaPasajero .= ' WHERE ' . $condicion;
         }
-        $consultaPasajero .= " ORDER BY IDpasajero ";
+        $consultaPasajero .= " ORDER BY p.docPasajero ";
+        
         if ($base->IniciarBase()) {
             if ($base->EjecutarBase($consultaPasajero)) {
                 $arregloPasajeros = array();
                 while ($row2 = $base->Registro()) {
                     $objPasajero = new Pasajero();
+                    $objPasajero->setIDpersona($row2['IDpersona']);
                     $objPasajero->cargarPasajero(
                         $row2['nombrePersona'], 
                         $row2['apellidoPersona'],
-                        $row2['IDpasajero'], 
+                        $row2['docPasajero'], 
                         $row2['telefonoPasajero']
                     );
                     array_push($arregloPasajeros, $objPasajero);
@@ -104,19 +113,38 @@ class Pasajero extends Persona {
     public function insertarPasajero() {
         $base = new BaseDatos();
         $resp = false;
-        $consultaInsertar = "INSERT INTO Pasajero (IDpasajero, nombrePersona, apellidoPersona, telefonoPasajero) 
-            VALUES (
-            '" . $this->getIDpasajero() . "', 
-            '" . parent::getNombrePersona() . "', 
-            '" . parent::getApellidoPersona() . "', 
-            '" . $this->getTelefonoPasajero() . "'
-            )";
-
+        
         if ($base->IniciarBase()) {
-            if ($base->EjecutarBase($consultaInsertar)) {
-                $resp = true;
+            $consultaVerificar = "SELECT docPasajero FROM Pasajero WHERE docPasajero = " . intval($this->getdocPasajero());
+            if ($base->EjecutarBase($consultaVerificar)) {
+                if ($base->Registro()) {
+                    $this->setMensaje("El documento del pasajero ya existe.");
+                    return false;
+                }
+            }
+
+            $consultaPersona = "INSERT INTO Persona (nombrePersona, apellidoPersona) 
+                VALUES ('" . $this->getNombrePersona() . "', '" . $this->getApellidoPersona() . "')";
+            
+            if ($base->EjecutarBase($consultaPersona)) {
+                $idPersona = mysqli_insert_id($base->getCONEXION());
+                $this->setIDpersona($idPersona);
+                
+                // Insertar en tabla Pasajero con referencia a Persona
+                $consultaInsertar = "INSERT INTO Pasajero (docPasajero, IDpersona, telefonoPasajero) 
+                    VALUES (
+                    " . intval($this->getdocPasajero()) . ",
+                    " . intval($this->getIDpersona()) . ",
+                    '" . $this->getTelefonoPasajero() . "'
+                    )";
+                
+                if ($base->EjecutarBase($consultaInsertar)) {
+                    $resp = true;
+                } else {
+                    $this->setMensaje("Pasajero->insertar: " . $base->getERROR());
+                }
             } else {
-                $this->setMensaje("Pasajero->insertar: " . $base->getERROR());
+                $this->setMensaje("Pasajero->insertar (Persona): " . $base->getERROR());
             }
         } else {
             $this->setMensaje("Pasajero->insertar: " . $base->getERROR());
@@ -127,16 +155,27 @@ class Pasajero extends Persona {
     public function modificarPasajero() {
         $base = new BaseDatos();
         $resp = false;
-        $consultaModificar = "UPDATE Pasajero SET 
-            nombrePersona='" . parent::getNombrePersona() . 
-            "', apellidoPersona='" . parent::getApellidoPersona() . 
-            "', telefonoPasajero='" . $this->getTelefonoPasajero() . 
-            "' WHERE IDpasajero='" . $this->getIDpasajero() . "'";
+        
         if ($base->IniciarBase()) {
-            if ($base->EjecutarBase($consultaModificar)) {
-                $resp = true;
+
+            $consultaPersona = "UPDATE Persona SET 
+                nombrePersona = '" . $this->getNombrePersona() . "', 
+                apellidoPersona = '" . $this->getApellidoPersona() . "' 
+                WHERE IDpersona = " . intval($this->getIDpersona());
+            
+            if ($base->EjecutarBase($consultaPersona)) {
+
+                $consultaModificar = "UPDATE Pasajero SET 
+                    telefonoPasajero = '" . $this->getTelefonoPasajero() . "' 
+                    WHERE docPasajero = " . intval($this->getdocPasajero());
+                
+                if ($base->EjecutarBase($consultaModificar)) {
+                    $resp = true;
+                } else {
+                    $this->setMensaje("Pasajero->modificar: " . $base->getERROR());
+                }
             } else {
-                $this->setMensaje("Pasajero->modificar: " . $base->getERROR());
+                $this->setMensaje("Pasajero->modificar (Persona): " . $base->getERROR());
             }
         } else {
             $this->setMensaje("Pasajero->modificar: " . $base->getERROR());
@@ -147,10 +186,16 @@ class Pasajero extends Persona {
     public function eliminarPasajero() {
         $base = new BaseDatos();
         $resp = false;
-        $consultaEliminar = "DELETE FROM Pasajero WHERE IDpasajero='" . $this->getIDpasajero() . "'";
+        
         if ($base->IniciarBase()) {
-            if ($base->EjecutarBase($consultaEliminar)) {
-                $resp = true;
+            $consultaEliminarPasajero = "DELETE FROM Pasajero WHERE docPasajero = " . intval($this->getdocPasajero());
+            if ($base->EjecutarBase($consultaEliminarPasajero)) {
+                $consultaEliminarPersona = "DELETE FROM Persona WHERE IDpersona = " . intval($this->getIDpersona());
+                if ($base->EjecutarBase($consultaEliminarPersona)) {
+                    $resp = true;
+                } else {
+                    $this->setMensaje("Pasajero->eliminar (Persona): " . $base->getERROR());
+                }
             } else {
                 $this->setMensaje("Pasajero->eliminar: " . $base->getERROR());
             }
@@ -161,9 +206,9 @@ class Pasajero extends Persona {
     }
 
     public function __toString() {
-        return parent::__toString() .
-            "ID Pasajero: " . $this->getIDpasajero() . "\n" .
-            "Teléfono: " . $this->getTelefonoPasajero() . "\n";
+        return 
+               "Nombre: " . $this->getNombrePersona() . " " . $this->getApellidoPersona() . "\n" .
+               "Documento pasajero: " . $this->getdocPasajero() . "\n" .
+               "Teléfono: " . $this->getTelefonoPasajero() . "\n";
     }
-
 }
