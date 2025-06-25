@@ -78,7 +78,8 @@ class Persona {
     public function __toString() {
         return
             "Nombre: " . $this->getNombrePersona() . "\n" .
-            "Apellido: " . $this->getApellidoPersona() . "\n";
+            "Apellido: " . $this->getApellidoPersona() . "\n" .
+            "Documento persona: " . $this->getIDpersona() . "\n";
     }
 
 }
