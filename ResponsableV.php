@@ -1,38 +1,37 @@
 <?php
-
 include_once 'BaseDatos.php';
 include_once 'Persona.php'; 
 
 class ResponsableV extends Persona {
 
-    private $IDempleado;
-    private $IDlicencia;
+    private $numEmpleado;
+    private $numLicencia;
     private $mensaje;
 
     public function __construct(
-        $IDempleado = 0, 
-        $IDlicencia = 0
+        $numEmpleado = 0, 
+        $numLicencia = 0
     ) {
-        parent::__construct("", "", "");
-        $this->IDempleado = $IDempleado;
-        $this->IDlicencia = $IDlicencia;
+        parent::__construct("", "", 0);
+        $this->numEmpleado = $numEmpleado;
+        $this->numLicencia = $numLicencia;
         $this->mensaje = "";
     }
 
-    public function getIDempleado() {
-        return $this->IDempleado;
+    public function getnumEmpleado() {
+        return $this->numEmpleado;
     }
 
-    public function setIDempleado($IDempleado) {
-        $this->IDempleado = $IDempleado;
+    public function setnumEmpleado($numEmpleado) {
+        $this->numEmpleado = $numEmpleado;
     }
 
-    public function getIDlicencia() {
-        return $this->IDlicencia;
+    public function getnumLicencia() {
+        return $this->numLicencia;
     }
 
-    public function setIDlicencia($IDlicencia) {
-        $this->IDlicencia = $IDlicencia;
+    public function setnumLicencia($numLicencia) {
+        $this->numLicencia = $numLicencia;
     }
 
     public function setMensaje($mensaje) {
@@ -43,52 +42,64 @@ class ResponsableV extends Persona {
         return $this->mensaje;
     }
 
-    public function cargarResponsableV($nombrePersona, $apellidoPersona, $IDempleado, $IDlicencia) {
+    public function cargarResponsableV($nombrePersona, $apellidoPersona, $numLicencia) {
         $this->setNombrePersona($nombrePersona);
         $this->setApellidoPersona($apellidoPersona);
-        $this->setIDempleado($IDempleado);
-        $this->setIDlicencia($IDlicencia);
+        $this->setnumLicencia($numLicencia);
     }
 
     public function insertarResponsableV() {
-    $base = new BaseDatos();
-    $resp = false;
-    $consultaResponsableV = "INSERT INTO ResponsableV(nombrePersona, apellidoPersona, IDlicencia) 
-        VALUES (
-            '" . $this->getNombrePersona() . "', 
-            '" . $this->getApellidoPersona() . "', 
-            '" . $this->getIDlicencia() . "'
-        )";
-    if ($base->IniciarBase()) {
-        if ($base->EjecutarBase($consultaResponsableV)) {
-            $resp = true;
+        $base = new BaseDatos();
+        $resp = false;
+        
+        if ($base->IniciarBase()) {
+            $consultaPersona = "INSERT INTO Persona (nombrePersona, apellidoPersona) 
+                VALUES ('" . $this->getNombrePersona() . "', '" . $this->getApellidoPersona() . "')";
+            
+            if ($base->EjecutarBase($consultaPersona)) {
+                $idPersona = mysqli_insert_id($base->getCONEXION());
+                $this->setIDpersona($idPersona);
+
+                $consultaResponsableV = "INSERT INTO ResponsableV(IDpersona, numLicencia) 
+                    VALUES (" . intval($this->getIDpersona()) . ", '" . $this->getnumLicencia() . "')";
+                
+                if ($base->EjecutarBase($consultaResponsableV)) {
+                    $this->setnumEmpleado(mysqli_insert_id($base->getCONEXION()));
+                    $resp = true;
+                } else {
+                    $this->setMensaje("ResponsableV->insertar: " . $base->getERROR());
+                }
+            } else {
+                $this->setMensaje("ResponsableV->insertar (Persona): " . $base->getERROR());
+            }
         } else {
-            $this->setMensaje($base->getERROR());
+            $this->setMensaje("ResponsableV->insertar: " . $base->getERROR());
         }
-    } else {
-        $this->setMensaje($base->getERROR());
+        return $resp;
     }
-    return $resp;
-}
 
     public function listarResponsableV($condicion = "") {
         $arregloResponsables = null;
         $base = new BaseDatos();
-        $consultaResponsableV = "SELECT * FROM ResponsableV";
+        $consultaResponsableV = "SELECT r.*, p.nombrePersona, p.apellidoPersona, p.IDpersona 
+                                FROM ResponsableV r 
+                                INNER JOIN Persona p ON r.IDpersona = p.IDpersona";
         if ($condicion != "") {
             $consultaResponsableV .= ' WHERE ' . $condicion;
         }
-        $consultaResponsableV .= " ORDER BY IDempleado";
+        $consultaResponsableV .= " ORDER BY r.numEmpleado";
+        
         if ($base->IniciarBase()) {
             if ($base->EjecutarBase($consultaResponsableV)) {
                 $arregloResponsables = array();
                 while ($row2 = $base->Registro()) {
                     $objResponsableV = new ResponsableV();
+                    $objResponsableV->setnumEmpleado($row2['numEmpleado']);
+                    $objResponsableV->setIDpersona($row2['IDpersona']);
                     $objResponsableV->cargarResponsableV(
                         $row2['nombrePersona'], 
                         $row2['apellidoPersona'], 
-                        $row2['IDempleado'],
-                        $row2['IDlicencia']
+                        $row2['numLicencia']
                     );
                     array_push($arregloResponsables, $objResponsableV);
                 }
@@ -101,18 +112,23 @@ class ResponsableV extends Persona {
         return $arregloResponsables;
     }
 
-    public function buscarResponsableV($IDempleado) {
+    public function buscarResponsableV($numEmpleado) {
         $base = new BaseDatos();
-        $consultaResponsableV = "SELECT * FROM ResponsableV WHERE IDempleado = " . intval($IDempleado);
+        $consultaResponsableV = "SELECT r.*, p.nombrePersona, p.apellidoPersona, p.IDpersona 
+                                FROM ResponsableV r 
+                                INNER JOIN Persona p ON r.IDpersona = p.IDpersona 
+                                WHERE r.numEmpleado = " . intval($numEmpleado);
         $resp = false;
+        
         if ($base->IniciarBase()) {
             if ($base->EjecutarBase($consultaResponsableV)) {
                 if ($row2 = $base->Registro()) {
+                    $this->setnumEmpleado($row2['numEmpleado']);
+                    $this->setIDpersona($row2['IDpersona']);
                     $this->cargarResponsableV(
                         $row2['nombrePersona'], 
                         $row2['apellidoPersona'], 
-                        $row2['IDempleado'],
-                        $row2['IDlicencia']
+                        $row2['numLicencia']
                     );
                     $resp = true;
                 }
@@ -128,15 +144,21 @@ class ResponsableV extends Persona {
     public function eliminarResponsableV() {
         $base = new BaseDatos();
         $resp = false;
-        $consultaResponsableV = "DELETE FROM ResponsableV WHERE IDempleado = " . intval($this->getIDempleado());
+        
         if ($base->IniciarBase()) {
+            $consultaResponsableV = "DELETE FROM ResponsableV WHERE numEmpleado = " . intval($this->getnumEmpleado());
             if ($base->EjecutarBase($consultaResponsableV)) {
-                $resp = true;
+                $consultaPersona = "DELETE FROM Persona WHERE IDpersona = " . intval($this->getIDpersona());
+                if ($base->EjecutarBase($consultaPersona)) {
+                    $resp = true;
+                } else {
+                    $this->setMensaje("ResponsableV->eliminar (Persona): " . $base->getERROR());
+                }
             } else {
-                $this->setMensaje($base->getERROR());
+                $this->setMensaje("ResponsableV->eliminar: " . $base->getERROR());
             }
         } else {
-            $this->setMensaje($base->getERROR());
+            $this->setMensaje("ResponsableV->eliminar: " . $base->getERROR());
         }
         return $resp;
     }
@@ -144,29 +166,36 @@ class ResponsableV extends Persona {
     public function modificarResponsableV() {
         $base = new BaseDatos();
         $resp = false;
-        $consultaResponsableV = "UPDATE ResponsableV SET 
-            nombrePersona = '" . $this->getNombrePersona() . "', 
-            apellidoPersona = '" . $this->getApellidoPersona() . "', 
-            IDlicencia = '" . $this->getIDlicencia() . "' 
-            WHERE IDempleado = " . intval($this->getIDempleado());
+        
         if ($base->IniciarBase()) {
-            if ($base->EjecutarBase($consultaResponsableV)) {
-                $resp = true;
+            $consultaPersona = "UPDATE Persona SET 
+                nombrePersona = '" . $this->getNombrePersona() . "', 
+                apellidoPersona = '" . $this->getApellidoPersona() . "' 
+                WHERE IDpersona = " . intval($this->getIDpersona());
+            
+            if ($base->EjecutarBase($consultaPersona)) {
+                $consultaResponsableV = "UPDATE ResponsableV SET 
+                    numLicencia = '" . $this->getnumLicencia() . "' 
+                    WHERE numEmpleado = " . intval($this->getnumEmpleado());
+                
+                if ($base->EjecutarBase($consultaResponsableV)) {
+                    $resp = true;
+                } else {
+                    $this->setMensaje("ResponsableV->modificar: " . $base->getERROR());
+                }
             } else {
-                $this->setMensaje($base->getERROR());
+                $this->setMensaje("ResponsableV->modificar (Persona): " . $base->getERROR());
             }
         } else {
-            $this->setMensaje($base->getERROR());
+            $this->setMensaje("ResponsableV->modificar: " . $base->getERROR());
         }
         return $resp;
     }
 
     public function __toString() {
-        return "ResponsableV: " . 
-            $this->getNombrePersona() . " " . 
-            $this->getApellidoPersona() . ", " . 
-            "IDempleado: " . $this->getIDempleado() . ", " . 
-            "IDlicencia: " . $this->getIDlicencia();
+        return 
+               "ResponsableV: " . $this->getNombrePersona() . " " . $this->getApellidoPersona() . "\n" .
+               "numEmpleado: " . $this->getnumEmpleado() . "\n" .
+               "numLicencia: " . $this->getnumLicencia() . "\n";
     }
-
 }
