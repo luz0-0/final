@@ -63,7 +63,10 @@ public function insertarEmpresa() {
     $base = new BaseDatos();
     $resp = false;
     $consultaEmpresa = "INSERT INTO Empresa(IDempresa, nombreEmpresa, direccionEmpresa) 
-    VALUES ('". $this->getIDEmpresa() ."', '". $this->getNombreEmpresa() ."', '". $this->getDireccionEmpresa() ."')";
+    VALUES ('". $this->getIDEmpresa() .
+    "', '". $this->getNombreEmpresa() .
+    "', '". $this->getDireccionEmpresa() 
+    ."')";
     
     if($base->IniciarBase()) {
         if($base->EjecutarBase($consultaEmpresa)) {
