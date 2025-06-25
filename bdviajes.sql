@@ -2,6 +2,13 @@ CREATE DATABASE IF NOT EXISTS bdviajes;
 
 USE bdviajes;
 
+CREATE TABLE IF NOT EXISTS Persona (
+    IDpersona BIGINT AUTO_INCREMENT,
+    nombrePersona VARCHAR(150), 
+    apellidoPersona VARCHAR(150),
+    PRIMARY KEY (IDpersona)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS Empresa (
     IDempresa BIGINT AUTO_INCREMENT,
     nombreEmpresa VARCHAR(150),
@@ -10,55 +17,43 @@ CREATE TABLE IF NOT EXISTS Empresa (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS ResponsableV (
-    IDempleado BIGINT AUTO_INCREMENT,
-    IDlicencia BIGINT,
-    nombrePersona VARCHAR(150), 
-    apellidoPersona VARCHAR(150), 
-    PRIMARY KEY (IDempleado)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
-
-CREATE TABLE IF NOT EXISTS Viaje (
-    IDviaje BIGINT AUTO_INCREMENT, /*codigo de viaje*/
-    destinoViaje VARCHAR(150),
-    cantMaxPasajeros INT,
-    IDempresa BIGINT,
-    IDempleado BIGINT,
-    importeViaje FLOAT,
-    PRIMARY KEY (IDviaje),
-    FOREIGN KEY (IDempresa) REFERENCES Empresa (IDempresa)
-        ON UPDATE CASCADE ON DELETE RESTRICT,
-    FOREIGN KEY (IDempleado) REFERENCES ResponsableV (IDempleado)
+    numEmpleado BIGINT AUTO_INCREMENT,
+    IDpersona BIGINT,
+    numLicencia BIGINT,
+    PRIMARY KEY (numEmpleado),
+    FOREIGN KEY (IDpersona) REFERENCES Persona(IDpersona)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS Pasajero (
-    IDpasajero VARCHAR(15),
-    nombrePersona VARCHAR(150), 
-    apellidoPersona VARCHAR(150), 
-    telefonoPasajero VARCHAR(15), 
-    IDviaje BIGINT,
-    PRIMARY KEY (IDpasajero),
-    FOREIGN KEY (IDviaje) REFERENCES Viaje (IDviaje)
-        ON UPDATE CASCADE ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS ViajePasajeros ( /* falta la clase j */
-    IDviaje BIGINT,
-    IDpasajero VARCHAR(15),
-    destinoViaje VARCHAR(150),
-    IDempleado BIGINT,
-    PRIMARY KEY (IDviaje, IDpasajero),
-    FOREIGN KEY (IDviaje) REFERENCES Viaje(IDviaje)
-        ON UPDATE CASCADE ON DELETE RESTRICT,
-    FOREIGN KEY (IDpasajero) REFERENCES Pasajero(IDpasajero)
-        ON UPDATE CASCADE ON DELETE RESTRICT,
-    FOREIGN KEY (IDempleado) REFERENCES ResponsableV(IDempleado)
+    docPasajero BIGINT,
+    IDpersona BIGINT,
+    telefonoPasajero VARCHAR(15),
+    PRIMARY KEY (docPasajero),
+    FOREIGN KEY (IDpersona) REFERENCES Persona(IDpersona)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS Persona (
-    nombrePersona VARCHAR(150), 
-    apellidoPersona VARCHAR(150),
-    IDpersona VARCHAR(15),
-    PRIMARY KEY (IDpersona)
+CREATE TABLE IF NOT EXISTS Viaje (
+    IDviaje BIGINT AUTO_INCREMENT,
+    destinoViaje VARCHAR(150),
+    cantMaxPasajeros INT,
+    IDempresa BIGINT,
+    numEmpleado BIGINT,
+    importeViaje FLOAT,
+    PRIMARY KEY (IDviaje),
+    FOREIGN KEY (IDempresa) REFERENCES Empresa (IDempresa)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (numEmpleado) REFERENCES ResponsableV (numEmpleado)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS ViajePasajeros (
+    IDviaje BIGINT,
+    docPasajero BIGINT,
+    PRIMARY KEY (IDviaje, docPasajero),
+    FOREIGN KEY (IDviaje) REFERENCES Viaje(IDviaje)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (docPasajero) REFERENCES Pasajero(docPasajero)
+        ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
