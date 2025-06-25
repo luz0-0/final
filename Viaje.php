@@ -128,7 +128,7 @@ class Viaje {
                     $empresa->buscarEmpresa($row2['IDempresa']);
 
                     $responsable = new ResponsableV();
-                    $responsable->buscarResponsableV($row2['IDempleado']);
+                    $responsable->buscarResponsableV($row2['numEmpleado']);
 
                     $this->cargarViaje(
                         $row2['IDviaje'], 
@@ -153,12 +153,12 @@ class Viaje {
     public function insertarViaje() {
         $base = new BaseDatos();
         $resp = false;
-        $consultaViaje = "INSERT INTO Viaje(destinoViaje, cantMaxPasajeros, IDempresa, IDempleado, importeViaje) 
+        $consultaViaje = "INSERT INTO Viaje(destinoViaje, cantMaxPasajeros, IDempresa, numEmpleado, importeViaje) 
             VALUES (
                 '" . $this->getDestinoViaje() . "', 
                 " . $this->getCantMaxPasajeros() . ",
                 " . $this->getObjEmpresa()->getIDempresa() . ",
-                " . $this->getObjResponsableV()->getIDempleado() . ",
+                " . $this->getObjResponsableV()->getnumEmpleado() . ",
                 " . $this->getImporteViaje() . "
             )";
         if ($base->IniciarBase()) {
@@ -190,7 +190,7 @@ class Viaje {
                     $empresa->buscarEmpresa($row2['IDempresa']);
 
                     $responsable = new ResponsableV();
-                    $responsable->buscarResponsableV($row2['IDempleado']);
+                    $responsable->buscarResponsableV($row2['numEmpleado']);
 
                     $objViaje->cargarViaje(
                         $row2['IDviaje'], 
@@ -235,7 +235,7 @@ class Viaje {
             destinoViaje = '" . $this->getDestinoViaje() . "', 
             cantMaxPasajeros = " . $this->getCantMaxPasajeros() . ", 
             IDempresa = " . $this->getObjEmpresa()->getIDempresa() . ", 
-            IDempleado = " . $this->getObjResponsableV()->getIDempleado() . ", 
+            numEmpleado = " . $this->getObjResponsableV()->getnumEmpleado() . ", 
             importeViaje = " . $this->getImporteViaje() . "
             WHERE IDviaje = " . intval($this->getIDviaje());
         if ($base->IniciarBase()) {
