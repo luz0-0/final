@@ -184,28 +184,29 @@ public function menuPasajero() {
             }
             break;
         case 3:
-            echo "\n Modificar Pasajero\n";
-            echo "\n Ingrese documento del pasajero a modificar: \n";
-            $docPasajero = trim(fgets(STDIN));
-            $pasajero = new Pasajero();
-            if ($pasajero->buscarPasajero($docPasajero)) {
-                echo "\n Pasajero encontrado: " . $pasajero->getNombrePersona() . " " . $pasajero->getApellidoPersona() . "\n";
-                echo "\n Ingrese nuevo nombre del pasajero: \n";
-                $nombrePersona = trim(fgets(STDIN));
-                echo "\nIngrese nuevo apellido del pasajero: \n";
-                $apellidoPersona = trim(fgets(STDIN));
-                echo "\n Ingrese nuevo teléfono del pasajero: \n";
-                $telefonoPasajero = trim(fgets(STDIN));
-                $pasajero->cargarPasajero($nombrePersona, $apellidoPersona, $docPasajero, $telefonoPasajero);
-                if ($pasajero->modificarPasajero()) {
-                    echo "\n Pasajero modificado.\n";
-                } else {
-                    echo "\n Error al modificar: " . $pasajero->getMensaje() . "\n";
-                }
-            } else {
-                echo "\n Pasajero no encontrado.\n";
-            }
-            break;
+    echo "\n Modificar Pasajero\n";
+    echo "\n Ingrese documento del pasajero a modificar: \n";
+    $docPasajero = trim(fgets(STDIN));
+    $pasajero = new Pasajero();
+    if ($pasajero->buscarPasajero($docPasajero)) {
+        echo "\n Pasajero encontrado: " . $pasajero->getNombrePersona() . " " . $pasajero->getApellidoPersona() . "\n";
+        echo "\n Ingrese nuevo nombre del pasajero: \n";
+        $nombrePersona = trim(fgets(STDIN));
+        echo "\nIngrese nuevo apellido del pasajero: \n";
+        $apellidoPersona = trim(fgets(STDIN));
+        echo "\n Ingrese nuevo teléfono del pasajero: \n";
+        $telefonoPasajero = trim(fgets(STDIN));
+        $pasajero->cargarPasajero($nombrePersona, $apellidoPersona, $docPasajero, $telefonoPasajero, $pasajero->getIDpersona());
+        
+        if ($pasajero->modificarPasajero()) {
+            echo "\n Pasajero modificado.\n";
+        } else {
+            echo "\n Error al modificar: " . $pasajero->getMensaje() . "\n";
+        }
+    } else {
+        echo "\n Pasajero no encontrado.\n";
+    }
+    break;
         case 4:
             echo "\n Eliminar Pasajero\n";
             echo "\n Ingrese documento del pasajero a eliminar: \n";
@@ -275,7 +276,7 @@ public function menuResponsable() {
             $apellidoPersona = trim(fgets(STDIN));
             echo "\n Ingrese número de licencia: ";
             $numLicencia = trim(fgets(STDIN));
-            $responsable->cargarResponsableV($nombrePersona, $apellidoPersona, $numLicencia);
+            $responsable->cargarResponsableV($nombrePersona, $apellidoPersona, $responsable->getIDpersona(), $numLicencia);
             if ($responsable->insertarResponsableV()) {
                 echo "\n Responsable insertado correctamente.\n";
             } else {
@@ -304,7 +305,7 @@ public function menuResponsable() {
                 $nombrePersona = trim(fgets(STDIN));
                 echo "\n Ingrese nuevo apellido del responsable: ";
                 $apellidoPersona = trim(fgets(STDIN));
-                $responsable->cargarResponsableV($nombrePersona, $apellidoPersona, $numLicencia);
+                $responsable->cargarResponsableV($nombrePersona, $apellidoPersona, $responsable->getIDpersona(), $numLicencia);
                 if ($responsable->modificarResponsableV()) {
                     echo "\n Responsable modificado.\n";
                 } else {
@@ -366,33 +367,33 @@ public function menuViaje() {
 
         switch ($opcion) {
             case 1:
-                echo "Insertar Viaje\n";
-                $viaje = new Viaje();
-                echo "Ingrese destino del viaje: ";
-                $destinoViaje = trim(fgets(STDIN));
-                echo "Ingrese cantidad máxima de pasajeros: ";
-                $cantMaxPasajeros = trim(fgets(STDIN));
-                echo "Ingrese ID de la empresa: ";
-                $IDempresa = trim(fgets(STDIN));
-                echo "Ingrese ID del responsable: ";
-                $numEmpleado = trim(fgets(STDIN));
-                echo "Ingrese importe del viaje: ";
-                $importeViaje = trim(fgets(STDIN));
-                
-                $empresa = new Empresa();
-                $responsable = new ResponsableV();
+    echo "Insertar Viaje\n";
+    $viaje = new Viaje();
+    echo "Ingrese destino del viaje: ";
+    $destinoViaje = trim(fgets(STDIN));
+    echo "Ingrese cantidad máxima de pasajeros: ";
+    $cantMaxPasajeros = trim(fgets(STDIN));
+    echo "Ingrese ID de la empresa: ";
+    $IDempresa = trim(fgets(STDIN));
+    echo "Ingrese ID del responsable: ";
+    $numEmpleado = trim(fgets(STDIN));
+    echo "Ingrese importe del viaje: ";
+    $importeViaje = trim(fgets(STDIN));
+    
+    $empresa = new Empresa();
+    $responsable = new ResponsableV();
 
-                if ($empresa->buscarEmpresa($IDempresa) && $responsable->buscarResponsableV($numEmpleado)) {
-                    $viaje->cargarViaje(0, $destinoViaje, $cantMaxPasajeros, $empresa, $responsable, [], $importeViaje);
-                    if ($viaje->insertarViaje()) {
-                        echo "Viaje insertado correctamente.\n";
-                    } else {
-                        echo "Error al insertar el viaje: " . $viaje->getMensaje() . "\n";
-                    }
-                } else {
-                    echo "Empresa o responsable no encontrados.\n";
-                }
-                break;
+    if ($empresa->buscarEmpresa($IDempresa) && $responsable->buscarResponsableV($numEmpleado)) {
+        $viaje->cargarViaje(0, $destinoViaje, $cantMaxPasajeros, $empresa, $responsable, $importeViaje);
+        if ($viaje->insertarViaje()) {
+            echo "Viaje insertado correctamente.\n";
+        } else {
+            echo "Error al insertar el viaje: " . $viaje->getMensaje() . "\n";
+        }
+    } else {
+        echo "Empresa o responsable no encontrados.\n";
+    }
+    break;
             case 2:
                 echo "Buscar Viaje\n";
                 echo "Ingrese ID del viaje: ";
@@ -404,48 +405,37 @@ public function menuViaje() {
                     echo "Viaje no encontrado.\n";
                 }
                 break;
-            case 3:
-                echo "Modificar Viaje\n";
-                echo "Ingrese ID del viaje a modificar: ";
-                $IDviaje = trim(fgets(STDIN));
-                $viaje = new Viaje();
-                if ($viaje->buscarViaje($IDviaje)) {
-                    echo "Viaje encontrado: " . $viaje->getDestinoViaje() . "\n";
-                    echo "Ingrese nuevo destino del viaje: ";
-                    $destinoViaje = trim(fgets(STDIN));
-                    echo "Ingrese nueva cantidad máxima de pasajeros: ";
-                    $cantMaxPasajeros = trim(fgets(STDIN));
-                    echo "Ingrese nuevo ID de la empresa: ";
-                    $IDempresa = trim(fgets(STDIN));
-                    echo "Ingrese nuevo ID del responsable: ";
-                    $numEmpleado = trim(fgets(STDIN));
-                    echo "Ingrese nuevo importe del viaje: ";
-                    $importeViaje = trim(fgets(STDIN));
-                    $empresa = new Empresa();
-                    $empresa->buscarEmpresa($IDempresa);
-                    $responsable = new ResponsableV();
-                    $responsable->buscarResponsableV($numEmpleado);
-
-                    $viaje->cargarViaje(
-                        $IDviaje,
-                        $destinoViaje,
-                        $cantMaxPasajeros,
-                        $empresa,
-                        $responsable,
-                        [],
-                        $importeViaje
-                    );
-
-                    if ($viaje->modificarViaje()) {
-                        echo "\n Viaje modificado.\n";
-                    } else {
-                        echo "\n Error al modificar " . $viaje->getMensaje() . "\n";
-                    }
-                } else {
-                    echo "\n Viaje no encontrado.\n";
-                }
-                break;
-
+case 3:
+    echo "\n Modificar Viaje\n";
+    echo "\n Ingrese ID del viaje a modificar: \n";
+    $IDviaje = trim(fgets(STDIN));
+    $viaje = new Viaje();
+    
+    if ($viaje->buscarViaje($IDviaje)) {
+        echo "\n Viaje encontrado: " . $viaje->getDestinoViaje() . "\n";
+        
+        echo "\n Ingrese nuevo destino del viaje: \n";
+        $destinoViaje = trim(fgets(STDIN));
+        
+        echo "\n Ingrese nueva cantidad máxima de pasajeros: \n";
+        $cantMaxPasajeros = trim(fgets(STDIN));
+        
+        echo "\n Ingrese nuevo importe del viaje: \n";
+        $importeViaje = trim(fgets(STDIN));
+        
+        $viaje->setDestinoViaje($destinoViaje);
+        $viaje->setCantMaxPasajeros($cantMaxPasajeros);
+        $viaje->setImporteViaje($importeViaje);
+        
+        if ($viaje->modificarViaje()) {
+            echo "\n Viaje modificado exitosamente.\n";
+        } else {
+            echo "\n Error al modificar viaje: " . $viaje->getMensaje() . "\n";
+        }
+    } else {
+        echo "\n Viaje no encontrado: " . $viaje->getMensaje() . "\n";
+    }
+    break;
             case 4:
                 echo "\n Eliminar Viaje\n";
                 echo "Ingrese ID del viaje a eliminar: ";
@@ -491,32 +481,36 @@ public function menuViajePasajeros() {
         echo "\n 0. Volver \n";
         $opcion = trim(fgets(STDIN));
 
-        switch ($opcion) {
-            case 1:
-                echo "\n Asignar pasajero a un viaje\n";
-                echo "Ingrese ID del viaje: ";
-                $IDviaje = trim(fgets(STDIN));
-                echo "Ingrese documento del pasajero: ";
-                $docPasajero = trim(fgets(STDIN));
-                $viaje = new Viaje();
-                if (!$viaje->buscarViaje($IDviaje)) {
-                    echo "Error: No se encontró el viaje.\n";
-                    break;
-                }
-                $pasajero = new Pasajero();
-                if (!$pasajero->buscarPasajero($docPasajero)) {
-                    echo "Error:  No se encontró el pasajero.\n";
-                    break;
-                }
+            switch ($opcion) {
+            case 1: 
+        echo "\n Agregar Pasajero a Viaje\n";
+        echo "Ingrese ID del viaje: ";
+        $IDviaje = trim(fgets(STDIN));
+        echo "Ingrese documento del pasajero: ";
+        $docPasajero = trim(fgets(STDIN));
+        
+        
+        $viaje = new Viaje();
+        if ($viaje->buscarViaje($IDviaje)) {
+            
+            $pasajero = new Pasajero();
+            if ($pasajero->buscarPasajero($docPasajero)) {
+                
                 $viajePasajero = new ViajePasajeros();
-                $viajePasajero->cargarViajePasajero($IDviaje, $docPasajero);
+                $viajePasajero->cargarViajePasajero($pasajero, $viaje);
                 
                 if ($viajePasajero->insertar()) {
-                    echo "Pasajero asignado correctamente.\n";
+                    echo "\n Pasajero agregado al viaje.\n";
                 } else {
-                    echo "Error al asignar pasajero: " . $viajePasajero->getMensaje() . "\n";
+                    echo "\n Error al agregar pasajero al viaje: " . $viajePasajero->getMensaje() . "\n";
                 }
-                break;
+            } else {
+                echo "\n Pasajero no encontrado.\n";
+            }
+        } else {
+            echo "\n Viaje no encontrado.\n";
+        }
+        break;
             case 2:
                 echo "\n Eliminar pasajero\n";
                 echo "Ingrese ID del viaje: ";
@@ -533,53 +527,49 @@ public function menuViajePasajeros() {
                     echo "Error al eliminar pasajero: " . $viajePasajero->getMensaje() . "\n";
                 }
                 break;
-            case 3:
-                echo "\n Mostrar pasajeros de un viaje\n";
-                echo "Ingrese ID del viaje: ";
-                $IDviaje = trim(fgets(STDIN));
-                $viajePasajeros = new ViajePasajeros();
-                $relaciones = $viajePasajeros->listar("IDviaje = " . intval($IDviaje));
-                
-                if ($relaciones && count($relaciones) > 0) {
-                    echo "Pasajeros en el viaje ID $IDviaje:\n";
-                    foreach ($relaciones as $relacion) {
-                        $pasajero = new Pasajero();
-                        if ($pasajero->buscarPasajero($relacion->getIDPasajero())) {
-                            echo "Documento: " . $pasajero->getdocPasajero() . ", Nombre: " . 
-                                $pasajero->getNombrePersona() . " " . $pasajero->getApellidoPersona() . 
-                                ", Teléfono: " . $pasajero->getTelefonoPasajero() . "\n";
-                        }
-                    }
-                } else {
-                    echo "No hay pasajeros en este viaje.\n";
-                }
-                break;
-            case 4:
-                    echo "\n Mostrar viajes de un pasajero\n";
-                    echo "Ingrese documento del pasajero: ";
-                    $docPasajero = trim(fgets(STDIN));
-                    $pasajero = new Pasajero();
-                    if ($pasajero->buscarPasajero($docPasajero)) {
-                        echo "Pasajero: " . $pasajero->getNombrePersona() . " " . $pasajero->getApellidoPersona() . "\n";
-                        $viajePasajeros = new ViajePasajeros();
-                        $relaciones = $viajePasajeros->listar("docPasajero = " . intval($docPasajero));
-                        
-                        if ($relaciones && count($relaciones) > 0) {
-                            echo "Viajes del pasajero:\n";
-                            foreach ($relaciones as $relacion) {
-                                $viaje = new Viaje();
-                                if ($viaje->buscarViaje($relacion->getIDviaje())) {
-                                    echo "ID: " . $viaje->getIDviaje() . ", Destino: " . $viaje->getDestinoViaje() . 
-                                        ", Importe: " . $viaje->getImporteViaje() . "\n";
-                                }
-                            }
-                        } else {
-                            echo "Este pasajero no tiene viajes asignados.\n";
-                        }
-                    } else {
-                        echo "Pasajero no encontrado.\n";
-                    }
-                    break;
+case 3:
+    echo "\n Mostrar pasajeros de un viaje\n";
+    echo "Ingrese ID del viaje: ";
+    $IDviaje = trim(fgets(STDIN));
+    $viajePasajeros = new ViajePasajeros();
+    $relaciones = $viajePasajeros->listar("IDviaje = " . intval($IDviaje));
+    
+    if ($relaciones && count($relaciones) > 0) {
+        echo "Pasajeros en el viaje ID $IDviaje:\n";
+        foreach ($relaciones as $relacion) {
+            $pasajero = $relacion->getObjPasajero();
+            echo "Documento: " . $pasajero->getdocPasajero() . ", Nombre: " . 
+                $pasajero->getNombrePersona() . " " . $pasajero->getApellidoPersona() . 
+                ", Teléfono: " . $pasajero->getTelefonoPasajero() . "\n";
+        }
+    } else {
+        echo "No hay pasajeros en este viaje.\n";
+    }
+    break;
+           case 4:
+    echo "\n Mostrar viajes de un pasajero\n";
+    echo "Ingrese documento del pasajero: ";
+    $docPasajero = trim(fgets(STDIN));
+    $pasajero = new Pasajero();
+    if ($pasajero->buscarPasajero($docPasajero)) {
+        echo "Pasajero: " . $pasajero->getNombrePersona() . " " . $pasajero->getApellidoPersona() . "\n";
+        $viajePasajeros = new ViajePasajeros();
+        $relaciones = $viajePasajeros->listar("docPasajero = " . intval($docPasajero));
+        
+        if ($relaciones && count($relaciones) > 0) {
+            echo "Viajes del pasajero:\n";
+            foreach ($relaciones as $relacion) {
+                $viaje = $relacion->getObjViaje();
+                echo "ID: " . $viaje->getIDviaje() . ", Destino: " . $viaje->getDestinoViaje() . 
+                    ", Importe: " . $viaje->getImporteViaje() . "\n";
+            }
+        } else {
+            echo "No hay viajes asignados a este pasajero.\n";
+        }
+    } else {
+        echo "Pasajero no encontrado.\n";
+    }
+    break;
 
             case 0:
                 echo "Volviendo al menú principal...\n";
