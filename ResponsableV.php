@@ -35,7 +35,7 @@ class ResponsableV extends Persona {
         $this->setnumLicencia($numLicencia);
     }
 
-public function insertarResponsableV() {
+public function insertar() {
     $base = new BaseDatos();
     $resp = false;
     
@@ -80,7 +80,7 @@ public function insertarResponsableV() {
     return $resp;
 }
 
-    public static function listarResponsableV($condicion = "") {
+    public function listar($condicion = "") {
         $arreglo = [];
         $base = new BaseDatos();
         $consulta = "SELECT * FROM ResponsableV";
@@ -92,26 +92,27 @@ public function insertarResponsableV() {
             if ($base->EjecutarBase($consulta)) {
                 while ($row2 = $base->Registro()) {
                     $obj = new ResponsableV();
-                    $obj->buscarResponsableV($row2['numEmpleado']);
+                    $obj->buscar($row2['numEmpleado']);
                     array_push($arreglo, $obj);
                 }
             } else {
-                self::setMensaje($base->getERROR());
+                $this->setMensaje($base->getERROR());
             }
         } else {
-            self::setMensaje($base->getERROR());
+            $this->setMensaje($base->getERROR());
         }
         return $arreglo;
     }
 
-    public function buscarResponsableV($numEmpleado) {
+
+    public function buscar($numEmpleado) {
         $base = new BaseDatos();
         $consulta = "SELECT * FROM ResponsableV WHERE numEmpleado = " . intval($numEmpleado);
         $resp = false;
         if ($base->IniciarBase()) {
             if ($base->EjecutarBase($consulta)) {
                 if ($row2 = $base->Registro()) {
-                    parent::buscarPersona($row2['IDpersona']);
+                    parent::buscar($row2['IDpersona']);
                     $this->setnumEmpleado($row2['numEmpleado']);
                     $this->setnumLicencia($row2['numLicencia']);
                     $resp = true;
@@ -127,13 +128,13 @@ public function insertarResponsableV() {
         return $resp;
     }
 
-    public function eliminarResponsableV() {
+    public function eliminar() {
         $base = new BaseDatos();
         $resp = false;
         $consultaBorra = "DELETE FROM ResponsableV WHERE numEmpleado = " . intval($this->getnumEmpleado());
         if ($base->IniciarBase()) {
             if ($base->EjecutarBase($consultaBorra)) {
-                if (parent::eliminarPersona()) {
+                if (parent::eliminar()) {
                     $resp = true;
                 }
             } else {
@@ -145,11 +146,11 @@ public function insertarResponsableV() {
         return $resp;
     }
 
-public function modificarResponsableV() {
+public function modificar() {
     $resp = false;
     $base = new BaseDatos();
     
-    if (parent::modificarPersona()) {
+    if (parent::modificar()) {
         $consultaModifica = "UPDATE ResponsableV SET numLicencia='" . $this->getnumLicencia() . 
             "' WHERE numEmpleado=" . intval($this->getnumEmpleado());
         
