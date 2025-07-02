@@ -54,7 +54,7 @@ class Persona {
         $this->setIDpersona($IDpersona);
     }
 
-public function insertarPersona() {
+public function insertar() {
     $baseDatos = new BaseDatos();
     $resp = false;
     $consultaPersona = "INSERT INTO Persona(nombrePersona, apellidoPersona) 
@@ -71,7 +71,7 @@ public function insertarPersona() {
     return $resp;
 }
 
-    public function modificarPersona() {
+    public function modificar() {
         $baseDatos = new BaseDatos();
         $resp = false;
         $consultaModificar = "UPDATE Persona SET 
@@ -90,7 +90,7 @@ public function insertarPersona() {
         return $resp;
     }
 
-    public function eliminarPersona() {
+    public function eliminar() {
         $baseDatos = new BaseDatos();
         $resp = false;
         $consultaEliminar = "DELETE FROM Persona WHERE IDpersona = " . intval($this->getIDpersona());
@@ -106,7 +106,7 @@ public function insertarPersona() {
         return $resp;
     }
 
-    public function buscarPersona($IDpersona) {
+    public function buscar($IDpersona) {
         $baseDatos = new BaseDatos();
         $resp = false;
         $consultaBuscar = "SELECT * FROM Persona WHERE IDpersona = " . intval($IDpersona);
@@ -127,7 +127,7 @@ public function insertarPersona() {
         return $resp;
     }
 
-    public function listarPersonas($condicion = "") {
+    public function listar($condicion = "") {
         $arreglo = [];
         $baseDatos = new BaseDatos();
         $consultaPersona = "SELECT * FROM Persona";
