@@ -36,7 +36,7 @@ public function cargarPasajero($nombrePersona, $apellidoPersona, $docPasajero, $
     $this->setdocPasajero($docPasajero);
 }
 
-    public function buscarPasajero($docPasajero){
+    public function buscar($docPasajero){
         $base = new BaseDatos();
         $consulta = "SELECT * FROM Pasajero WHERE docPasajero = " . intval($docPasajero);
         $resp = false;
@@ -44,7 +44,7 @@ public function cargarPasajero($nombrePersona, $apellidoPersona, $docPasajero, $
         if ($base->IniciarBase()) {
             if ($base->EjecutarBase($consulta)) {
                 if ($row2 = $base->Registro()) {
-                    parent::buscarPersona($row2['IDpersona']);
+                    parent::buscar($row2['IDpersona']);
                     $this->setdocPasajero($row2['docPasajero']);
                     $this->setTelefonoPasajero($row2['telefonoPasajero']);
                     $resp = true;
@@ -61,7 +61,7 @@ public function cargarPasajero($nombrePersona, $apellidoPersona, $docPasajero, $
     }
 
 
-public static function listarPasajero($condicion = "") {
+public function listar($condicion = "") {
     $arreglo = [];
     $base = new BaseDatos();
     $consulta = "SELECT p.*, per.nombrePersona, per.apellidoPersona 
@@ -86,17 +86,23 @@ public static function listarPasajero($condicion = "") {
                 array_push($arreglo, $obj);
             }
         } else {
-            self::setMensaje($base->getERROR());
+            $this->setMensaje($base->getERROR());
         }
     } else {
-        self::setMensaje($base->getERROR());
+        $this->setMensaje($base->getERROR());
     }
     return $arreglo;
 }
 
-public function insertarPasajero() {
+
+public function insertar() {
     $base = new BaseDatos();
     $resp = false;
+    
+    if ($this->buscar($this->getdocPasajero())) {
+        $this->setMensaje("Error: Ya existe un pasajero con el documento " . $this->getdocPasajero());
+        return false;
+    }
     
     if ($base->IniciarBase()) {
         $consultaPersona = "INSERT INTO Persona (nombrePersona, apellidoPersona) VALUES ('" . 
@@ -133,11 +139,13 @@ public function insertarPasajero() {
     
     return $resp;
 }
-public function modificarPasajero() {
+
+
+public function modificar() {
     $base = new BaseDatos();
     $resp = false;
     
-    if (parent::modificarPersona()) {
+    if (parent::modificar()) {
         $consultaPasajero = "UPDATE Pasajero SET telefonoPasajero = '" . $this->getTelefonoPasajero() . 
             "' WHERE docPasajero = " . intval($this->getdocPasajero());
         if ($base->IniciarBase()) {
@@ -155,13 +163,13 @@ public function modificarPasajero() {
     return $resp;
 }
 
-    public function eliminarPasajero() {
+    public function eliminar() {
         $base = new BaseDatos();
         $resp = false;
         $consultaEliminarPasajero = "DELETE FROM Pasajero WHERE docPasajero = " . intval($this->getdocPasajero());
         if ($base->IniciarBase()) {
             if ($base->EjecutarBase($consultaEliminarPasajero)) {
-                if (parent::eliminarPersona()) {
+                if (parent::eliminar()) {
                     $resp = true;
                 }
             } else {
