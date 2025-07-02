@@ -17,8 +17,6 @@ class ViajePasajeros {
     $this->mensaje = "";
 }
 
-
-
     public function getObjPasajero() {
         return $this->objPasajero;
     }
@@ -35,7 +33,6 @@ class ViajePasajeros {
         $this->objViaje = $objViaje;
     }
 
-    
     public function getMensaje() {
         return $this->mensaje;
     }
@@ -48,8 +45,6 @@ class ViajePasajeros {
         $this->setObjPasajero($objPasajero);
         $this->setObjViaje($objViaje);
     }
-
-
 
 public function insertar() {
     $base = new BaseDatos();
@@ -70,6 +65,24 @@ public function insertar() {
     return $resp;
 }
 
+public function eliminar() {
+    $base = new BaseDatos();
+    $resp = false;
+    $consulta = "DELETE FROM ViajePasajeros WHERE IDviaje = " . intval($this->getObjViaje()->getIDviaje()) . 
+                " AND docPasajero = " . intval($this->getObjPasajero()->getdocPasajero());
+    
+    if ($base->IniciarBase()) {
+        if ($base->EjecutarBase($consulta)) {
+            $resp = true;
+        } else {
+            $this->mensaje = "Error al eliminar el viaje pasajero: " . $base->getERROR();
+        }
+    } else {
+        $this->mensaje = "Error al iniciar la base de datos: " . $base->getERROR();
+    }
+    
+    return $resp;
+}
 
 public function listar($condicion = "") {
     $arregloViajePasajeros = null;
@@ -90,7 +103,7 @@ public function listar($condicion = "") {
                 $viaje->buscarViaje($row['IDviaje']);
                 
                 $pasajero = new Pasajero();
-                $pasajero->buscarPasajero($row['docPasajero']);
+                $pasajero->buscar($row['docPasajero']);
                 
                 $objViajePasajero->cargarViajePasajero($pasajero, $viaje);
                 array_push($arregloViajePasajeros, $objViajePasajero);
