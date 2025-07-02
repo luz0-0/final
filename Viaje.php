@@ -11,29 +11,18 @@ class Viaje {
     private $cantMaxPasajeros;
     private $objEmpresa;
     private $objResponsableV;
-    private $colObjPasajeros;
     private $importeViaje;
     private $mensaje;
 
-    public function __construct(
-        $IDviaje = 0, 
-        $destinoViaje = "", 
-        $cantMaxPasajeros = 0, 
-        $objEmpresa = null, 
-        $objResponsableV = null, 
-        $colObjPasajeros = [], 
-        $importeViaje = 0.0, 
-        $mensaje = ""
-    ) {
-        $this->IDviaje = $IDviaje;
-        $this->destinoViaje = $destinoViaje;
-        $this->cantMaxPasajeros = $cantMaxPasajeros;
-        $this->objEmpresa = $objEmpresa;
-        $this->objResponsableV = $objResponsableV;
-        $this->colObjPasajeros = $colObjPasajeros;
-        $this->importeViaje = $importeViaje;
-        $this->mensaje = $mensaje;
-    }
+   public function __construct() {
+    $this->IDviaje = 0;
+    $this->destinoViaje = "";
+    $this->cantMaxPasajeros = "";
+    $this->objEmpresa = null;
+    $this->objResponsableV = null;
+    $this->importeViaje = 0;
+    $this->mensaje = "";
+}
 
     public function getIDviaje() {
         return $this->IDviaje;
@@ -75,14 +64,7 @@ class Viaje {
         $this->objResponsableV = $objResponsableV;
     }
 
-    public function getColObjPasajeros() {
-        return $this->colObjPasajeros;
-    }
-
-    public function setColObjPasajeros($colObjPasajeros) {
-        $this->colObjPasajeros = $colObjPasajeros;
-    }
-
+   
     public function getImporteViaje() {
         return $this->importeViaje;
     }
@@ -99,56 +81,63 @@ class Viaje {
         $this->mensaje = $mensaje;
     }
 
-    public function cargarViaje(
-        $IDviaje, 
-        $destinoViaje, 
-        $cantMaxPasajeros, 
-        $objEmpresa, 
-        $objResponsableV, 
-        $colObjPasajeros, 
-        $importeViaje
-    ) {
-        $this->setIDviaje($IDviaje);
-        $this->setDestinoViaje($destinoViaje);
-        $this->setCantMaxPasajeros($cantMaxPasajeros);
-        $this->setObjEmpresa($objEmpresa);
-        $this->setObjResponsableV($objResponsableV);
-        $this->setColObjPasajeros($colObjPasajeros);
-        $this->setImporteViaje($importeViaje);
-    }
+  public function cargarViaje(
+    $IDviaje, 
+    $destinoViaje, 
+    $cantMaxPasajeros, 
+    $objEmpresa, 
+    $objResponsableV, 
+    $importeViaje
+) {
+    $this->setIDviaje($IDviaje);
+    $this->setDestinoViaje($destinoViaje);
+    $this->setCantMaxPasajeros($cantMaxPasajeros);
+    $this->setObjEmpresa($objEmpresa);
+    $this->setObjResponsableV($objResponsableV);
+    $this->setImporteViaje($importeViaje);
+}
 
-    public function buscarViaje($IDviaje) {
-        $base = new BaseDatos();
-        $consultaViaje = "SELECT * FROM Viaje WHERE IDviaje = " . intval($IDviaje);
-        $resp = false;
-        if ($base->IniciarBase()) {
-            if ($base->EjecutarBase($consultaViaje)) {
-                if ($row2 = $base->Registro()) {
-                    $empresa = new Empresa();
-                    $empresa->buscarEmpresa($row2['IDempresa']);
+public function buscarViaje($IDviaje) {
+    $base = new BaseDatos();
+    $consultaViaje = "SELECT v.*, e.nombreEmpresa, e.direccionEmpresa, 
+                             r.numLicencia, r.numEmpleado, r.IDpersona,
+                             p.nombrePersona, p.apellidoPersona
+                      FROM Viaje v 
+                      INNER JOIN Empresa e ON v.IDempresa = e.IDempresa
+                      INNER JOIN ResponsableV r ON v.numEmpleado = r.numEmpleado
+                      INNER JOIN Persona p ON r.IDpersona = p.IDpersona
+                      WHERE v.IDviaje = " . intval($IDviaje);
+    $resp = false;
+    if ($base->IniciarBase()) {
+        if ($base->EjecutarBase($consultaViaje)) {
+            if ($row2 = $base->Registro()) {
+                
+                $empresa = new Empresa();
+                $empresa->cargarEmpresa($row2['IDempresa'], $row2['nombreEmpresa'], $row2['direccionEmpresa']);
 
-                    $responsable = new ResponsableV();
-                    $responsable->buscarResponsableV($row2['numEmpleado']);
+                
+                $responsable = new ResponsableV();
+                $responsable->cargarResponsableV($row2['nombrePersona'], $row2['apellidoPersona'], $row2['IDpersona'], $row2['numLicencia']);
+                $responsable->setnumEmpleado($row2['numEmpleado']);
 
-                    $this->cargarViaje(
-                        $row2['IDviaje'], 
-                        $row2['destinoViaje'], 
-                        $row2['cantMaxPasajeros'], 
-                        $empresa, 
-                        $responsable, 
-                        [], 
-                        $row2['importeViaje']
-                    );
-                    $resp = true;
-                }
-            } else {
-                $this->setMensaje($base->getERROR());
+                $this->cargarViaje(
+                    $row2['IDviaje'], 
+                    $row2['destinoViaje'], 
+                    $row2['cantMaxPasajeros'], 
+                    $empresa, 
+                    $responsable, 
+                    $row2['importeViaje']
+                );
+                $resp = true;
             }
         } else {
             $this->setMensaje($base->getERROR());
         }
-        return $resp;
+    } else {
+        $this->setMensaje($base->getERROR());
     }
+    return $resp;
+}
 
     public function insertarViaje() {
         $base = new BaseDatos();
@@ -173,44 +162,54 @@ class Viaje {
         return $resp;
     }
 
-    public function listarViaje($condicion = "") {
-        $arregloViajes = null;
-        $base = new BaseDatos();
-        $consultaViaje = "SELECT * FROM Viaje";
-        if ($condicion != "") {
-            $consultaViaje .= ' WHERE ' . $condicion;
-        }
-        $consultaViaje .= " ORDER BY IDviaje ";
-        if ($base->IniciarBase()) {
-            if ($base->EjecutarBase($consultaViaje)) {
-                $arregloViajes = array();
-                while ($row2 = $base->Registro()) {
-                    $objViaje = new Viaje();
-                    $empresa = new Empresa();
-                    $empresa->buscarEmpresa($row2['IDempresa']);
+public function listarViaje($condicion = "") {
+    $arregloViajes = null;
+    $base = new BaseDatos();
+    $consultaViaje = "SELECT v.*, e.nombreEmpresa, e.direccionEmpresa, 
+                             r.numLicencia, r.numEmpleado, r.IDpersona,
+                             p.nombrePersona, p.apellidoPersona
+                      FROM Viaje v 
+                      INNER JOIN Empresa e ON v.IDempresa = e.IDempresa
+                      INNER JOIN ResponsableV r ON v.numEmpleado = r.numEmpleado
+                      INNER JOIN Persona p ON r.IDpersona = p.IDpersona";
+    if ($condicion != "") {
+        $consultaViaje .= ' WHERE ' . $condicion;
+    }
+    $consultaViaje .= " ORDER BY v.IDviaje ";
+    
+    if ($base->IniciarBase()) {
+        if ($base->EjecutarBase($consultaViaje)) {
+            $arregloViajes = array();
+            while ($row2 = $base->Registro()) {
+                $objViaje = new Viaje();
+                
+                
+                $empresa = new Empresa();
+                $empresa->cargarEmpresa($row2['IDempresa'], $row2['nombreEmpresa'], $row2['direccionEmpresa']);
 
-                    $responsable = new ResponsableV();
-                    $responsable->buscarResponsableV($row2['numEmpleado']);
+                
+                $responsable = new ResponsableV();
+                $responsable->cargarResponsableV($row2['nombrePersona'], $row2['apellidoPersona'], $row2['IDpersona'], $row2['numLicencia']);
+                $responsable->setnumEmpleado($row2['numEmpleado']);
 
-                    $objViaje->cargarViaje(
-                        $row2['IDviaje'], 
-                        $row2['destinoViaje'], 
-                        $row2['cantMaxPasajeros'], 
-                        $empresa, 
-                        $responsable, 
-                        [], 
-                        $row2['importeViaje']
-                    );
-                    array_push($arregloViajes, $objViaje);
-                }
-            } else {
-                $this->setMensaje("Viaje->listar: " . $base->getERROR());
+                $objViaje->cargarViaje(
+                    $row2['IDviaje'], 
+                    $row2['destinoViaje'], 
+                    $row2['cantMaxPasajeros'], 
+                    $empresa, 
+                    $responsable, 
+                    $row2['importeViaje']
+                );
+                array_push($arregloViajes, $objViaje);
             }
         } else {
             $this->setMensaje("Viaje->listar: " . $base->getERROR());
         }
-        return $arregloViajes;
+    } else {
+        $this->setMensaje("Viaje->listar: " . $base->getERROR());
     }
+    return $arregloViajes;
+}
 
     public function eliminarViaje() {
         $base = new BaseDatos();
